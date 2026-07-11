@@ -107,24 +107,33 @@
 
         // --- LOAD ARTICLES ---
         async function loadArticles() {
-            const list = document.getElementById('articles-list');
-            list.innerHTML = "Loading...";
-            try {
-                const files = await ghAPI("/contents/content/articles");
-                list.innerHTML = '';
-                files.filter(f => f.name.endsWith('.md')).forEach(f => {
-                    const slug = f.name.replace('.md', '');
-                    list.innerHTML += `
-                        <div class="article-item">
-                            <span>${slug}</span>
-                            <button style="width:auto; padding:8px 16px; margin:0;" onclick="deleteArticle('${slug}', '${f.sha}')">Delete</button>
-                        </div>`;
-                });
-                if(files.length === 0) list.innerHTML = "<p>No articles yet.</p>";
-            } catch (e) {
-                list.innerHTML = `<p class="status error">Error loading: ${e.message}</p>`;
-            }
+    const list = document.getElementById('articles-list');
+    list.innerHTML = "Loading articles...";
+    try {
+        // First check if the folder exists
+        const response = await ghAPI("/contents/content/articles");
+        list.innerHTML = '';
+        
+        if (!Array.isArray(response) || response.length === 0) {
+            list.innerHTML = "<p>No articles yet. Tap '+ Write New Article' to create one!</p>";
+            return;
         }
+        
+        response.filter(f => f.name.endsWith('.md')).forEach(f => {
+            const slug = f.name.replace('.md', '');
+            list.innerHTML += `
+                <div class="article-item">
+                    <span>${slug}</span>
+                    <button style="width:auto; padding:8px 16px; margin:0;" onclick="deleteArticle('${slug}', '${f.sha}')">Delete</button>
+                </div>`;
+        });
+    } catch (e) {
+        console.error("Load error:", e);
+        list.innerHTML = `<p class="status error">Error: ${e.message}<br><br>Make sure:<br>1. Folders exist<br>2. Token has permissions<br>3. Repo name is correct</p>`;
+    }
+}
+
+
 
         // --- PUBLISH ARTICLE ---
         async function publishArticle() {

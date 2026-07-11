@@ -1,0 +1,27 @@
+---
+layout: false
+permalink: /feed.xml
+---
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CMS Static Generator</title>
+    <link>{{ site.url }}</link>
+    <atom:link href="{{ site.url }}/feed.xml" rel="self" type="application/rss+xml" />
+    <description>A static site generator built with Eleventy</description>
+    <language>en-us</language>
+    <lastBuildDate>{{ now | dateFilter("r") }}</lastBuildDate>
+
+    {%- for article in collections.articles | slice(0, 10) %}
+    <item>
+      <title>{{ article.data.title }}</title>
+      <link>{{ site.url }}{{ article.url }}</link>
+      <guid>{{ site.url }}{{ article.url }}</guid>
+      <pubDate>{{ article.date | dateFilter("r") }}</pubDate>
+      <description>
+        {{ article.data.description or article.content | truncate(200) }}
+      </description>
+    </item>
+    {%- endfor %}
+  </channel>
+</rss>

@@ -9,7 +9,11 @@ permalink: "/article/{{ article.fileSlug }}/"
 <article>
   <h1>{{ article.data.title }}</h1>
   <p>{{ article.data.date | readableDate }}</p>
-  {% if article.data.image %}<img src="{{ article.data.image }}" alt="{{ article.data.title }}">{% endif %}
+   {% if article.data.image %}
+     <img src="{{ article.data.image }}" alt="{{ article.data.title }}" style="max-width: 100%; height: auto;">
+   {% endif %}
+   
+
   {{ article.templateContent }}
 </article>
 

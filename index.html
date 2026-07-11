@@ -1,0 +1,8 @@
+---
+layout: base.html
+title: "My Site"
+description: "Welcome"
+---
+<h1>Latest Articles</h1>
+<ul>{% for a in collections.articles | reverse %}<li><a href="/article/{{ a.fileSlug }}/">{{ a.data.title }}</a></li>{% endfor %}</ul>
+

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom CMS</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8; --danger: #ef4444; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 16px; }
+        .hidden { display: none !important; }
+        input, textarea, button { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #334155; background: var(--card); color: var(--text); font-size: 16px; box-sizing: border-box; }
+        button { background: var(--accent); color: #0f172a; font-weight: bold; border: none; cursor: pointer; }
+        button.danger { background: var(--danger); color: white; }
+        h1, h2 { margin-top: 0; }
+        .article-item { background: var(--card); padding: 16px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .status { padding: 10px; border-radius: 8px; margin-bottom: 16px; text-align: center; }
+        .success { background: #064e3b; color: #6ee7b7; }
+        .error { background: #7f1d1d; color: #fca5a5; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <h1>🔐 CMS Login</h1>
+        <p>Enter your GitHub Fine-Grained Personal Access Token.</p>
+        <input type="password" id="gh-token" placeholder="GitHub Token (github_pat_...)">
+        <input type="text" id="gh-repo" placeholder="owner/repo-name" value="YOUR_USERNAME/YOUR_REPO">
+        <button onclick="login()">Login & Connect</button>
+    </div>
+
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashboard-screen" class="hidden">
+        <h1>📝 Articles</h1>
+        <button onclick="showEditor()">+ Write New Article</button>
+        <div id="status-msg"></div>
+        <div id="articles-list"></div>
+        <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- EDITOR SCREEN -->
+    <div id="editor-screen" class="hidden">
+        <h1 id="editor-title">New Article</h1>
+        <input type="text" id="art-title" placeholder="Article Title">
+        <input type="text" id="art-slug" placeholder="auto-generated-slug">
+        <input type="text" id="art-desc" placeholder="SEO Description">
+        <textarea id="art-body" rows="15" placeholder="Write your article in Markdown..."></textarea>
+        <label style="display:block; margin-bottom:8px; color:#94a3b8;">Featured Image (Optional)</label>
+        <input type="file" id="art-image" accept="image/*">
+        <button onclick="publishArticle()">🚀 Publish & Deploy</button>
+        <button class="danger" onclick="showDashboard()">Cancel</button>
+    </div>
+
+    <script>
+        // --- CONFIG ---
+        const API = "https://api.github.com";
+        const DEPLOY_HOOK = "https://api.netlify.com/build_hooks/YOUR_NETLIFY_HOOK_ID"; // CHANGE THIS
+
+        let token = localStorage.getItem('gh_token');
+        let repo = localStorage.getItem('gh_repo');
+
+        // --- AUTH ---
+        function login() {
+            token = document.getElementById('gh-token').value;
+            repo = document.getElementById('gh-repo').value;
+            if(!token || !repo) return alert("Fill all fields");
+            localStorage.setItem('gh_token', token);
+            localStorage.setItem('gh_repo', repo);
+            showDashboard();
+        }
+        function logout() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        // --- NAVIGATION ---
+        function showDashboard() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('editor-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            loadArticles();
+        }
+        function showEditor() {
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('editor-screen').classList.remove('hidden');
+            document.getElementById('editor-title').innerText = "New Article";
+            document.getElementById('art-title').value = '';
+            document.getElementById('art-slug').value = '';
+            document.getElementById('art-desc').value = '';
+            document.getElementById('art-body').value = '';
+            document.getElementById('art-image').value = '';
+            
+            // Auto-generate slug from title
+            document.getElementById('art-title').oninput = (e) => {
+                document.getElementById('art-slug').value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            };
+        }
+
+        // --- GITHUB API HELPERS ---
+        async function ghAPI(endpoint, method = 'GET', body = null) {
+            const opts = { method, headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' } };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(`${API}/repos/${repo}${endpoint}`, opts);
+            if (!res.ok) throw new Error(await res.text());
+            return method === 'DELETE' ? true : res.json();
+        }
+
+        // --- LOAD ARTICLES ---
+        async function loadArticles() {
+            const list = document.getElementById('articles-list');
+            list.innerHTML = "Loading...";
+            try {
+                const files = await ghAPI("/contents/content/articles");
+                list.innerHTML = '';
+                files.filter(f => f.name.endsWith('.md')).forEach(f => {
+                    const slug = f.name.replace('.md', '');
+                    list.innerHTML += `
+                        <div class="article-item">
+                            <span>${slug}</span>
+                            <button style="width:auto; padding:8px 16px; margin:0;" onclick="deleteArticle('${slug}', '${f.sha}')">Delete</button>
+                        </div>`;
+                });
+                if(files.length === 0) list.innerHTML = "<p>No articles yet.</p>";
+            } catch (e) {
+                list.innerHTML = `<p class="status error">Error loading: ${e.message}</p>`;
+            }
+        }
+
+        // --- PUBLISH ARTICLE ---
+        async function publishArticle() {
+            const title = document.getElementById('art-title').value;
+            const slug = document.getElementById('art-slug').value;
+            const desc = document.getElementById('art-desc').value;
+            const body = document.getElementById('art-body').value;
+            const imgFile = document.getElementById('art-image').files[0];
+
+            if (!title || !slug || !body) return alert("Title, Slug, and Body are required.");
+
+            showStatus("Publishing...");
+
+            try {
+                // 1. Upload Image if exists
+                let imgPath = "";
+                if (imgFile) {
+                    showStatus("Uploading image...");
+                    const base64 = await fileToBase64(imgFile);
+                    const imgName = `${slug}-${imgFile.name}`;
+                    await ghAPI(`/contents/public/images/${imgName}`, 'PUT', {
+                        message: `Add image for ${slug}`,
+                        content: base64.split(',')[1],
+                        branch: "main"
+                    });
+                    imgPath = `/images/${imgName}`;
+                }
+
+                // 2. Create Markdown File
+                showStatus("Writing article...");
+                const mdContent = `---
+title: "${title}"
+description: "${desc}"
+date: "${new Date().toISOString()}"
+image: "${imgPath}"
+---
+
+${body}`;
+
+                await ghAPI(`/contents/content/articles/${slug}.md`, 'PUT', {
+                    message: `Publish article: ${title}`,
+                    content: btoa(unescape(encodeURIComponent(mdContent))),
+                    branch: "main"
+                });
+
+                // 3. Trigger Deploy
+                showStatus("Triggering deployment...");
+                await fetch(DEPLOY_HOOK, { method: 'POST' });
+
+                showStatus("✅ Published & Deploying!", true);
+                setTimeout(showDashboard, 2000);
+
+            } catch (e) {
+                showStatus(`❌ Error: ${e.message}`, false, true);
+            }
+        }
+
+        // --- DELETE ARTICLE ---
+        async function deleteArticle(slug, sha) {
+            if(!confirm(`Delete ${slug}?`)) return;
+            try {
+                await ghAPI(`/contents/content/articles/${slug}.md`, 'DELETE', { message: `Delete ${slug}`, sha, branch: "main" });
+                await fetch(DEPLOY_HOOK, { method: 'POST' });
+                loadArticles();
+            } catch(e) { alert("Error: " + e.message); }
+        }
+
+        // --- UTILS ---
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+        function showStatus(msg, isSuccess, isError) {
+            const el = document.getElementById('status-msg');
+            el.className = `status ${isSuccess ? 'success' : isError ? 'error' : ''}`;
+            el.innerText = msg;
+        }
+
+        // Auto-login if token exists
+        if (token && repo) showDashboard();
+    </script>
+</body>
+</html>
+

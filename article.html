@@ -1,0 +1,15 @@
+---
+layout: base.html
+pagination:
+  data: collections.articles
+  size: 1
+  alias: article
+permalink: "/article/{{ article.fileSlug }}/"
+---
+<article>
+  <h1>{{ article.data.title }}</h1>
+  <p>{{ article.data.date | readableDate }}</p>
+  {% if article.data.image %}<img src="{{ article.data.image }}" alt="{{ article.data.title }}">{% endif %}
+  {{ article.templateContent | safe }}
+</article>
+

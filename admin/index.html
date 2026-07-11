@@ -1,225 +1,954 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom CMS</title>
+    <title>KAALI OS - SYSTEM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fefce8', 100: '#fef9c3', 200: '#fef08a', 300: '#fde047',
+                            400: '#facc15', 500: '#eab308', 600: '#ca8a04', 700: '#a16207',
+                            800: '#854d0e', 900: '#713f12'
+                        },
+                        accent: {
+                            50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca', 300: '#fca5a5',
+                            400: '#f87171', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c',
+                            800: '#991b1b', 900: '#7f1d1d'
+                        },
+                        surface: {
+                            0: '#000000',
+                            50: '#0a0a0a',
+                            100: '#111111',
+                            200: '#171717',
+                            300: '#1f1f1f',
+                            400: '#262626'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8; --danger: #ef4444; }
-        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 16px; }
-        .hidden { display: none !important; }
-        input, textarea, button { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #334155; background: var(--card); color: var(--text); font-size: 16px; box-sizing: border-box; }
-        button { background: var(--accent); color: #0f172a; font-weight: bold; border: none; cursor: pointer; }
-        button.danger { background: var(--danger); color: white; }
-        h1, h2 { margin-top: 0; }
-        .article-item { background: var(--card); padding: 16px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .status { padding: 10px; border-radius: 8px; margin-bottom: 16px; text-align: center; }
-        .success { background: #064e3b; color: #6ee7b7; }
-        .error { background: #7f1d1d; color: #fca5a5; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .editor-content [contenteditable="true"]:focus { outline: 2px solid #facc15; outline-offset: 2px; border-radius: 4px; }
+        .block-selected { outline: 2px solid #ef4444; outline-offset: 2px; }
+        .drag-over { background: rgba(250, 204, 21, 0.08); border: 2px dashed #facc15; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .modal-backdrop { backdrop-filter: blur(8px); background: rgba(0, 0, 0, 0.7); }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #262626; border-radius: 3px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #facc15; }
+        .prose-editor { min-height: 400px; }
+        .prose-editor h1 { font-size: 2.25em; font-weight: 800; margin: 0.67em 0; color: #facc15; }
+        .prose-editor h2 { font-size: 1.875em; font-weight: 700; margin: 0.75em 0; color: #fde047; }
+        .prose-editor h3 { font-size: 1.5em; font-weight: 600; margin: 0.83em 0; color: #fef08a; }
+        .prose-editor p { margin: 1em 0; line-height: 1.75; }
+        .prose-editor ul, .prose-editor ol { margin: 1em 0; padding-left: 2em; }
+        .prose-editor li { margin: 0.5em 0; }
+        .prose-editor blockquote { border-left: 4px solid #ef4444; padding-left: 1em; margin: 1em 0; font-style: italic; color: #fca5a5; background: rgba(239, 68, 68, 0.05); padding: 0.5em 1em; border-radius: 0 8px 8px 0; }
+        .prose-editor code { background: #1f1f1f; color: #facc15; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.875em; border: 1px solid #262626; }
+        .prose-editor pre { background: #0a0a0a; color: #fde047; padding: 1em; border-radius: 8px; overflow-x: auto; border: 1px solid #262626; }
+        .prose-editor img { max-width: 100%; height: auto; border-radius: 8px; margin: 1em 0; }
+        .prose-editor a { color: #facc15; text-decoration: underline; text-decoration-color: #ef4444; }
+        [data-draggable] { cursor: grab; }
+        [data-draggable]:active { cursor: grabbing; }
+        .toast { animation: slideInRight 0.3s ease-out; }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .glow-yellow { box-shadow: 0 0 20px rgba(250, 204, 21, 0.3); }
+        .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+        .gradient-text { background: linear-gradient(135deg, #facc15 0%, #ef4444 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #facc15 !important; box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(250, 204, 21, 0.15), rgba(239, 68, 68, 0.05)); border-left: 2px solid #facc15; }
+        .component-item:hover { border-color: #facc15; background: rgba(250, 204, 21, 0.05); }
+        .article-card { transition: all 0.2s; }
+        .article-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(250, 204, 21, 0.1); }
     </style>
 </head>
-<body>
+<body class="h-full bg-black text-gray-100 transition-colors">
+    <!-- App Container -->
+    <div id="app" class="h-full flex flex-col">
+        <!-- Top Navigation -->
+        <nav class="bg-black border-b border-neutral-800 sticky top-0 z-50 shadow-lg shadow-black/50">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="p-2 rounded-md text-gray-400 hover:text-yellow-400 hover:bg-neutral-900 lg:hidden">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                        <div class="flex-shrink-0 flex items-center ml-2 lg:ml-0">
+                            <svg class="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                            </svg>
+                            <span class="ml-2 text-xl font-black gradient-text">NexusCMS</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 sm:space-x-4">
+                        <button id="aiAssistantBtn" class="hidden sm:flex items-center px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 to-yellow-500 text-black font-semibold hover:opacity-90 transition-opacity glow-red">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            <span class="text-sm">AI Assistant</span>
+                        </button>
+                        <button id="themeToggle" class="p-2 rounded-md text-gray-400 hover:text-yellow-400 hover:bg-neutral-900">
+                            <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                            </svg>
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                        </button>
+                        <div class="relative">
+                            <button id="userMenuBtn" class="flex items-center space-x-2 p-2 rounded-lg hover:bg-neutral-900">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-red-500 flex items-center justify-center text-black font-bold text-sm">A</div>
+                                <span class="hidden sm:block text-sm font-medium text-gray-200">Admin</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-    <!-- LOGIN SCREEN -->
-    <div id="login-screen">
-        <h1>🔐 CMS Login</h1>
-        <p>Enter your GitHub Fine-Grained Personal Access Token.</p>
-        <input type="password" id="gh-token" placeholder="GitHub Token (github_pat_...)">
-        <input type="text" id="gh-repo" placeholder="owner/repo-name" value="YOUR_USERNAME/YOUR_REPO">
-        <button onclick="login()">Login & Connect</button>
+        <!-- Main Layout -->
+        <div class="flex-1 flex overflow-hidden">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-neutral-950 border-r border-neutral-800 transform -translate-x-full lg:translate-x-0 lg:static lg:flex-shrink-0 transition-transform duration-300 ease-in-out overflow-y-auto scrollbar-thin pt-16 lg:pt-0">
+                <nav class="p-4 space-y-1">
+                    <a href="#" class="nav-item active flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-yellow-400" data-view="dashboard">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="editor">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Content Editor
+                    </a>
+                    <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="articles">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Articles
+                    </a>
+                    <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="builder">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                        </svg>
+                        Page Builder
+                    </a>
+                    <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="media">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Media Library
+                    </a>
+                    <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="seo">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        SEO Manager
+                    </a>
+                    <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="settings">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Settings
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto scrollbar-thin bg-black">
+                <!-- Dashboard View -->
+                <div id="view-dashboard" class="view-container p-4 sm:p-6 lg:p-8 fade-in">
+                    <div class="mb-8">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
+                        <p class="mt-2 text-gray-400">Welcome back! Here's what's happening with your content.</p>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                        <div class="bg-neutral-900 rounded-xl p-6 shadow-lg border border-neutral-800 hover:border-yellow-500/50 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Total Articles</p>
+                                    <p id="stat-total" class="mt-2 text-3xl font-bold text-yellow-400">0</p>
+                                    <p class="mt-2 text-sm text-green-400">↑ Live from GitHub</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-neutral-900 rounded-xl p-6 shadow-lg border border-neutral-800 hover:border-red-500/50 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Published</p>
+                                    <p id="stat-published" class="mt-2 text-3xl font-bold text-red-400">0</p>
+                                    <p class="mt-2 text-sm text-green-400">↑ All live</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-neutral-900 rounded-xl p-6 shadow-lg border border-neutral-800 hover:border-yellow-500/50 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Media Files</p>
+                                    <p id="stat-media" class="mt-2 text-3xl font-bold text-yellow-300">0</p>
+                                    <p class="mt-2 text-sm text-gray-500">→ In repository</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-neutral-900 rounded-xl p-6 shadow-lg border border-neutral-800 hover:border-red-500/50 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Status</p>
+                                    <p class="mt-2 text-2xl font-bold text-green-400">● Online</p>
+                                    <p class="mt-2 text-sm text-gray-500">Connected to GitHub</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-neutral-900 rounded-xl shadow-lg border border-neutral-800 p-6 mb-8">
+                        <h2 class="text-lg font-semibold text-white mb-4">Quick Actions</h2>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <button onclick="cms.switchView('editor')" class="flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 border border-yellow-500/20 hover:border-yellow-400 transition-colors">
+                                <svg class="w-8 h-8 text-yellow-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-white">New Article</span>
+                            </button>
+                            <button onclick="cms.switchView('articles')" class="flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-red-500/10 to-red-500/5 border border-red-500/20 hover:border-red-400 transition-colors">
+                                <svg class="w-8 h-8 text-red-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-white">View Articles</span>
+                            </button>
+                            <button onclick="cms.switchView('media')" class="flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-yellow-500/10 to-red-500/5 border border-neutral-700 hover:border-yellow-400 transition-colors">
+                                <svg class="w-8 h-8 text-yellow-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-white">Upload Media</span>
+                            </button>
+                            <button onclick="cms.triggerDeploy()" class="flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-red-500/10 to-yellow-500/5 border border-neutral-700 hover:border-red-400 transition-colors">
+                                <svg class="w-8 h-8 text-red-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-white">Deploy Site</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Articles -->
+                    <div class="bg-neutral-900 rounded-xl shadow-lg border border-neutral-800 p-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Recent Articles</h2>
+                        <div id="recent-articles" class="space-y-3">
+                            <p class="text-gray-500 text-sm">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Editor View -->
+                <div id="view-editor" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
+                    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-white">Content Editor</h1>
+                            <p class="mt-1 text-gray-400">Create and publish articles to your site</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="cms.saveDraft()" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black rounded-lg font-semibold transition-colors">
+                                Save Draft
+                            </button>
+                            <button onclick="cms.publishArticle()" class="px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded-lg font-semibold transition-colors">
+                                🚀 Publish
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Editor Toolbar -->
+                    <div class="bg-neutral-900 rounded-t-xl border border-neutral-800 p-3 sticky top-16 z-30">
+                        <div class="flex flex-wrap items-center gap-1 sm:gap-2">
+                            <select id="blockType" class="px-3 py-1.5 text-sm border border-neutral-700 rounded-lg bg-neutral-800 text-white">
+                                <option value="paragraph">Paragraph</option>
+                                <option value="heading1">Heading 1</option>
+                                <option value="heading2">Heading 2</option>
+                                <option value="heading3">Heading 3</option>
+                                <option value="quote">Quote</option>
+                                <option value="code">Code Block</option>
+                                <option value="list">List</option>
+                            </select>
+                            <div class="h-6 w-px bg-neutral-700 mx-1"></div>
+                            <button onclick="document.execCommand('bold')" class="p-2 hover:bg-neutral-800 hover:text-yellow-400 rounded-lg text-gray-300" title="Bold">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="document.execCommand('italic')" class="p-2 hover:bg-neutral-800 hover:text-yellow-400 rounded-lg text-gray-300" title="Italic">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 4h4m-2 0v16m4-16h-4m4 16h-4"></path>
+                                </svg>
+                            </button>
+                            <button onclick="document.execCommand('underline')" class="p-2 hover:bg-neutral-800 hover:text-yellow-400 rounded-lg text-gray-300" title="Underline">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v7a5 5 0 0010 0V4M5 20h14"></path>
+                                </svg>
+                            </button>
+                            <div class="h-6 w-px bg-neutral-700 mx-1"></div>
+                            <button onclick="cms.insertImage()" class="p-2 hover:bg-neutral-800 hover:text-red-400 rounded-lg text-gray-300" title="Insert Image">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="const url = prompt('Enter URL:'); if (url) document.execCommand('createLink', false, url);" class="p-2 hover:bg-neutral-800 hover:text-red-400 rounded-lg text-gray-300" title="Insert Link">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Editor Content Area -->
+                    <div class="bg-neutral-900 border border-neutral-800 rounded-b-xl">
+                        <div id="editorContent" class="prose-editor p-4 sm:p-6 lg:p-8 min-h-[600px] text-gray-200" contenteditable="true">
+                            <h1>Start Writing Your Article</h1>
+                            <p>Write your content here. Use the toolbar above to format your text, add images, and create links.</p>
+                        </div>
+                    </div>
+
+                    <!-- Editor Sidebar - Metadata -->
+                    <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-neutral-900 rounded-xl border border-neutral-800 p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Article Details</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Title</label>
+                                    <input type="text" id="contentTitle" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="Enter article title">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Slug (URL)</label>
+                                    <input type="text" id="contentSlug" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="auto-generated-from-title">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">SEO Description</label>
+                                    <textarea id="contentExcerpt" rows="3" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="Brief description for search engines"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-neutral-900 rounded-xl border border-neutral-800 p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Publish Settings</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Featured Image</label>
+                                    <input type="file" id="featuredImage" accept="image/*" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Tags</label>
+                                    <input type="text" id="contentTags" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="tag1, tag2, tag3">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Articles List View -->
+                <div id="view-articles" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
+                    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-white">Articles</h1>
+                            <p class="mt-1 text-gray-400">Manage all your published content</p>
+                        </div>
+                        <button onclick="cms.switchView('editor')" class="px-4 py-2 bg-gradient-to-r from-yellow-500 to-red-500 hover:opacity-90 text-black font-semibold rounded-lg transition-opacity">
+                            + New Article
+                        </button>
+                    </div>
+
+                    <div id="articles-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <p class="text-gray-500">Loading articles...</p>
+                    </div>
+                </div>
+
+                <!-- Media Library View -->
+                <div id="view-media" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
+                    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-white">Media Library</h1>
+                            <p class="mt-1 text-gray-400">Manage your images and files</p>
+                        </div>
+                        <button onclick="document.getElementById('mediaUpload').click()" class="px-4 py-2 bg-gradient-to-r from-yellow-500 to-red-500 hover:opacity-90 text-black font-semibold rounded-lg transition-opacity">
+                            Upload Files
+                        </button>
+                        <input type="file" id="mediaUpload" multiple accept="image/*" class="hidden">
+                    </div>
+
+                    <div id="media-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                        <p class="text-gray-500 col-span-full">Loading media...</p>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="view-settings" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
+                    <div class="mb-6">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-white">Settings</h1>
+                        <p class="mt-1 text-gray-400">Configure your CMS connection</p>
+                    </div>
+
+                    <div class="bg-neutral-900 rounded-xl border border-neutral-800 p-6 max-w-2xl">
+                        <h3 class="text-lg font-semibold text-white mb-4">GitHub Connection</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">GitHub Personal Access Token</label>
+                                <input type="password" id="settingsToken" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="github_pat_...">
+                                <p class="mt-1 text-xs text-gray-500">Create a token at github.com/settings/tokens with repo access</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Repository (owner/repo)</label>
+                                <input type="text" id="settingsRepo" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="your-username/your-repo">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Deploy Hook URL</label>
+                                <input type="text" id="settingsHook" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="https://api.netlify.com/build_hooks/...">
+                                <p class="mt-1 text-xs text-gray-500">Get this from Netlify/Vercel site settings</p>
+                            </div>
+                            <button onclick="cms.saveSettings()" class="w-full px-4 py-2 bg-gradient-to-r from-yellow-500 to-red-500 hover:opacity-90 text-black font-semibold rounded-lg transition-opacity">
+                                Save Settings
+                            </button>
+                            <button onclick="cms.logout()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg transition-colors">
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Placeholder Views -->
+                <div id="view-builder" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">Page Builder</h1>
+                    <p class="text-gray-400">Drag and drop page builder coming soon</p>
+                </div>
+
+                <div id="view-seo" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">SEO Manager</h1>
+                    <p class="text-gray-400">SEO tools and analytics coming soon</p>
+                </div>
+            </main>
+        </div>
     </div>
 
-    <!-- DASHBOARD SCREEN -->
-    <div id="dashboard-screen" class="hidden">
-        <h1>📝 Articles</h1>
-        <button onclick="showEditor()">+ Write New Article</button>
-        <div id="status-msg"></div>
-        <div id="articles-list"></div>
-        <button class="danger" onclick="logout()">Logout</button>
+    <!-- AI Assistant Modal -->
+    <div id="aiModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 modal-backdrop" onclick="cms.closeAIModal()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-neutral-950 border-l border-neutral-800 shadow-2xl slide-in overflow-y-auto">
+            <div class="sticky top-0 bg-neutral-950 border-b border-neutral-800 p-4 flex items-center justify-between">
+                <h2 class="text-lg font-semibold gradient-text">AI Assistant</h2>
+                <button onclick="cms.closeAIModal()" class="p-2 hover:bg-neutral-800 rounded-lg text-gray-400 hover:text-yellow-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div class="bg-gradient-to-r from-red-600 via-red-500 to-yellow-500 rounded-xl p-4 text-black">
+                    <h3 class="font-bold mb-2">⚡ AI-Powered Writing</h3>
+                    <p class="text-sm opacity-90">Get help with writing, editing, and content optimization</p>
+                </div>
+                <div class="space-y-2">
+                    <button class="w-full p-3 text-left bg-neutral-900 border border-neutral-800 rounded-lg hover:border-yellow-500 hover:bg-yellow-500/5 transition-colors">
+                        <p class="font-medium text-sm text-white">✨ Improve Writing</p>
+                        <p class="text-xs text-gray-500 mt-1">Enhance clarity and readability</p>
+                    </button>
+                    <button class="w-full p-3 text-left bg-neutral-900 border border-neutral-800 rounded-lg hover:border-yellow-500 hover:bg-yellow-500/5 transition-colors">
+                        <p class="font-medium text-sm text-white">📝 Generate Content</p>
+                        <p class="text-xs text-gray-500 mt-1">Create content from prompts</p>
+                    </button>
+                    <button class="w-full p-3 text-left bg-neutral-900 border border-neutral-800 rounded-lg hover:border-red-500 hover:bg-red-500/5 transition-colors">
+                        <p class="font-medium text-sm text-white">🔍 SEO Optimization</p>
+                        <p class="text-xs text-gray-500 mt-1">Optimize for search engines</p>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- EDITOR SCREEN -->
-    <div id="editor-screen" class="hidden">
-        <h1 id="editor-title">New Article</h1>
-        <input type="text" id="art-title" placeholder="Article Title">
-        <input type="text" id="art-slug" placeholder="auto-generated-slug">
-        <input type="text" id="art-desc" placeholder="SEO Description">
-        <textarea id="art-body" rows="15" placeholder="Write your article in Markdown..."></textarea>
-        <label style="display:block; margin-bottom:8px; color:#94a3b8;">Featured Image (Optional)</label>
-        <input type="file" id="art-image" accept="image/*">
-        <button onclick="publishArticle()">🚀 Publish & Deploy</button>
-        <button class="danger" onclick="showDashboard()">Cancel</button>
-    </div>
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
 
     <script>
-        // --- CONFIG ---
-        const API = "https://api.github.com";
-        const DEPLOY_HOOK = "https://api.netlify.com/build_hooks/6a52c471592e270d871a800d"; // CHANGE THIS
+        class NexusCMS {
+            constructor() {
+                this.API = "https://api.github.com";
+                this.token = localStorage.getItem('gh_token');
+                this.repo = localStorage.getItem('gh_repo');
+                this.deployHook = localStorage.getItem('deploy_hook');
+                this.articles = [];
+                
+                this.init();
+            }
 
-        let token = localStorage.getItem('gh_token');
-        let repo = localStorage.getItem('gh_repo');
-
-        // --- AUTH ---
-        function login() {
-            token = document.getElementById('gh-token').value;
-            repo = document.getElementById('gh-repo').value;
-            if(!token || !repo) return alert("Fill all fields");
-            localStorage.setItem('gh_token', token);
-            localStorage.setItem('gh_repo', repo);
-            showDashboard();
-        }
-        function logout() {
-            localStorage.clear();
-            location.reload();
-        }
-
-        // --- NAVIGATION ---
-        function showDashboard() {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('editor-screen').classList.add('hidden');
-            document.getElementById('dashboard-screen').classList.remove('hidden');
-            loadArticles();
-        }
-        function showEditor() {
-            document.getElementById('dashboard-screen').classList.add('hidden');
-            document.getElementById('editor-screen').classList.remove('hidden');
-            document.getElementById('editor-title').innerText = "New Article";
-            document.getElementById('art-title').value = '';
-            document.getElementById('art-slug').value = '';
-            document.getElementById('art-desc').value = '';
-            document.getElementById('art-body').value = '';
-            document.getElementById('art-image').value = '';
-            
-            // Auto-generate slug from title
-            document.getElementById('art-title').oninput = (e) => {
-                document.getElementById('art-slug').value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-            };
-        }
-
-        // --- GITHUB API HELPERS ---
-        async function ghAPI(endpoint, method = 'GET', body = null) {
-            const opts = { method, headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' } };
-            if (body) opts.body = JSON.stringify(body);
-            const res = await fetch(`${API}/repos/${repo}${endpoint}`, opts);
-            if (!res.ok) throw new Error(await res.text());
-            return method === 'DELETE' ? true : res.json();
-        }
-
-        // --- LOAD ARTICLES ---
-        async function loadArticles() {
-    const list = document.getElementById('articles-list');
-    list.innerHTML = "Loading articles...";
-    try {
-        // First check if the folder exists
-        const response = await ghAPI("/contents/content/articles");
-        list.innerHTML = '';
-        
-        if (!Array.isArray(response) || response.length === 0) {
-            list.innerHTML = "<p>No articles yet. Tap '+ Write New Article' to create one!</p>";
-            return;
-        }
-        
-        response.filter(f => f.name.endsWith('.md')).forEach(f => {
-            const slug = f.name.replace('.md', '');
-            list.innerHTML += `
-                <div class="article-item">
-                    <span>${slug}</span>
-                    <button style="width:auto; padding:8px 16px; margin:0;" onclick="deleteArticle('${slug}', '${f.sha}')">Delete</button>
-                </div>`;
-        });
-    } catch (e) {
-        console.error("Load error:", e);
-        list.innerHTML = `<p class="status error">Error: ${e.message}<br><br>Make sure:<br>1. Folders exist<br>2. Token has permissions<br>3. Repo name is correct</p>`;
-    }
-}
-
-
-
-        // --- PUBLISH ARTICLE ---
-        async function publishArticle() {
-            const title = document.getElementById('art-title').value;
-            const slug = document.getElementById('art-slug').value;
-            const desc = document.getElementById('art-desc').value;
-            const body = document.getElementById('art-body').value;
-            const imgFile = document.getElementById('art-image').files[0];
-
-            if (!title || !slug || !body) return alert("Title, Slug, and Body are required.");
-
-            showStatus("Publishing...");
-
-            try {
-                // 1. Upload Image if exists
-                let imgPath = "";
-                if (imgFile) {
-                    showStatus("Uploading image...");
-                    const base64 = await fileToBase64(imgFile);
-                    const imgName = `${slug}-${imgFile.name}`;
-                    await ghAPI(`/contents/public/images/${imgName}`, 'PUT', {
-                        message: `Add image for ${slug}`,
-                        content: base64.split(',')[1],
-                        branch: "main"
-                    });
-                       imgPath = `/${imgName}`;
-   
-
+            init() {
+                if (!this.token || !this.repo) {
+                    this.switchView('settings');
+                    this.showToast('Please configure your GitHub connection', 'warning');
+                } else {
+                    this.loadDashboard();
                 }
+                
+                this.setupEventListeners();
+                this.setupAutoSlug();
+                console.log('NexusCMS 🔥 initialized');
+            }
 
-                // 2. Create Markdown File
-                showStatus("Writing article...");
-                const mdContent = `---
-title: "${title}"
-description: "${desc}"
-date: "${new Date().toISOString()}"
-image: "${imgPath}"
----
-
-${body}`;
-
-                await ghAPI(`/contents/content/articles/${slug}.md`, 'PUT', {
-                    message: `Publish article: ${title}`,
-                    content: btoa(unescape(encodeURIComponent(mdContent))),
-                    branch: "main"
+            setupEventListeners() {
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    this.showToast('True dark mode is always on 🔥', 'info');
                 });
 
-                // 3. Trigger Deploy
-                showStatus("Triggering deployment...");
-                await fetch(DEPLOY_HOOK, { method: 'POST' });
+                document.getElementById('sidebarToggle').addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.toggle('-translate-x-full');
+                });
 
-                showStatus("✅ Published & Deploying!", true);
-                setTimeout(showDashboard, 2000);
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.switchView(item.dataset.view);
+                    });
+                });
 
-            } catch (e) {
-                showStatus(`❌ Error: ${e.message}`, false, true);
+                document.getElementById('aiAssistantBtn').addEventListener('click', () => {
+                    document.getElementById('aiModal').classList.remove('hidden');
+                });
+
+                document.getElementById('mediaUpload').addEventListener('change', (e) => {
+                    this.uploadMedia(e.target.files);
+                });
+            }
+
+            setupAutoSlug() {
+                const titleInput = document.getElementById('contentTitle');
+                const slugInput = document.getElementById('contentSlug');
+                
+                titleInput.addEventListener('input', (e) => {
+                    slugInput.value = e.target.value.toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-|-$/g, '');
+                });
+            }
+
+            async ghAPI(endpoint, method = 'GET', body = null) {
+                const opts = { 
+                    method, 
+                    headers: { 
+                        'Authorization': `token ${this.token}`, 
+                        'Accept': 'application/vnd.github.v3+json' 
+                    } 
+                };
+                if (body) opts.body = JSON.stringify(body);
+                
+                const res = await fetch(`${this.API}/repos/${this.repo}${endpoint}`, opts);
+                if (!res.ok) throw new Error(await res.text());
+                return method === 'DELETE' ? true : res.json();
+            }
+
+            async loadDashboard() {
+                try {
+                    // Load articles
+                    const files = await this.ghAPI("/contents/content/articles");
+                    this.articles = files.filter(f => f.name.endsWith('.md'));
+                    
+                    // Update stats
+                    document.getElementById('stat-total').textContent = this.articles.length;
+                    document.getElementById('stat-published').textContent = this.articles.length;
+                    
+                    // Load media count
+                    try {
+                        const media = await this.ghAPI("/contents/public/images");
+                        document.getElementById('stat-media').textContent = media.length;
+                    } catch {
+                        document.getElementById('stat-media').textContent = '0';
+                    }
+                    
+                    // Show recent articles
+                    this.showRecentArticles();
+                    
+                } catch (e) {
+                    this.showToast('Error loading dashboard: ' + e.message, 'error');
+                }
+            }
+
+            showRecentArticles() {
+                const container = document.getElementById('recent-articles');
+                if (this.articles.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-sm">No articles yet. Create your first one!</p>';
+                    return;
+                }
+                
+                const recent = this.articles.slice(0, 5);
+                container.innerHTML = recent.map(article => {
+                    const slug = article.name.replace('.md', '');
+                    return `
+                        <div class="flex items-center justify-between p-3 bg-neutral-800/50 rounded-lg hover:bg-neutral-800 transition-colors">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-white">${slug}</p>
+                                <p class="text-xs text-gray-500">Published</p>
+                            </div>
+                            <button onclick="cms.deleteArticle('${slug}', '${article.sha}')" class="text-red-400 hover:text-red-300 text-sm">Delete</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            async loadArticlesList() {
+                const container = document.getElementById('articles-list');
+                if (this.articles.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 col-span-full">No articles yet.</p>';
+                    return;
+                }
+                
+                container.innerHTML = this.articles.map(article => {
+                    const slug = article.name.replace('.md', '');
+                    return `
+                        <div class="article-card bg-neutral-900 rounded-xl border border-neutral-800 p-6 hover:border-yellow-500/50">
+                            <h3 class="text-lg font-semibold text-white mb-2">${slug}</h3>
+                            <p class="text-sm text-gray-400 mb-4">Published article</p>
+                            <div class="flex space-x-2">
+                                <a href="/article/${slug}/" target="_blank" class="flex-1 px-3 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 text-sm font-medium rounded-lg text-center transition-colors">
+                                    View
+                                </a>
+                                <button onclick="cms.deleteArticle('${slug}', '${article.sha}')" class="flex-1 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium rounded-lg transition-colors">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            async loadMediaLibrary() {
+                const container = document.getElementById('media-grid');
+                try {
+                    const files = await this.ghAPI("/contents/public/images");
+                    const images = files.filter(f => f.type === 'file');
+                    
+                    if (images.length === 0) {
+                        container.innerHTML = '<p class="text-gray-500 col-span-full">No media files yet.</p>';
+                        return;
+                    }
+                    
+                    container.innerHTML = images.map(file => `
+                        <div class="group relative aspect-square bg-neutral-900 rounded-lg border border-neutral-800 overflow-hidden hover:border-yellow-500/50 transition-all">
+                            <img src="https://raw.githubusercontent.com/${this.repo}/main/public/images/${file.name}" class="w-full h-full object-cover" alt="${file.name}">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <button onclick="cms.deleteMedia('${file.name}', '${file.sha}')" class="p-2 bg-red-500 rounded-full hover:bg-red-400">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent">
+                                <p class="text-xs text-white truncate">${file.name}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (e) {
+                    container.innerHTML = '<p class="text-gray-500 col-span-full">No media files yet.</p>';
+                }
+            }
+
+            async publishArticle() {
+                const title = document.getElementById('contentTitle').value;
+                const slug = document.getElementById('contentSlug').value;
+                const description = document.getElementById('contentExcerpt').value;
+                const content = document.getElementById('editorContent').innerHTML;
+                const imageFile = document.getElementById('featuredImage').files[0];
+                const tags = document.getElementById('contentTags').value;
+
+                if (!title || !slug || !content) {
+                    this.showToast('Title, slug, and content are required', 'error');
+                    return;
+                }
+
+                this.showToast('Publishing...', 'info');
+
+                try {
+                    // Upload image if exists
+                    let imgPath = "";
+                    if (imageFile) {
+                        this.showToast('Uploading image...', 'info');
+                        const base64 = await this.fileToBase64(imageFile);
+                        const imgName = `${slug}-${imageFile.name}`;
+                        await this.ghAPI(`/contents/public/images/${imgName}`, 'PUT', {
+                            message: `Add image for ${slug}`,
+                            content: base64.split(',')[1],
+                            branch: "main"
+                        });
+                        imgPath = `/images/${imgName}`;
+                    }
+
+                    // Convert HTML to simple markdown-like format
+                    const markdownContent = this.htmlToMarkdown(content);
+
+                    // Create markdown file
+                    this.showToast('Writing article...', 'info');
+                    const mdContent = `---
+title: "${title}"
+description: "${description}"
+date: "${new Date().toISOString()}"
+image: "${imgPath}"
+tags: [${tags.split(',').map(t => `"${t.trim()}"`).join(', ')}]
+---
+
+${markdownContent}`;
+
+                    await this.ghAPI(`/contents/content/articles/${slug}.md`, 'PUT', {
+                        message: `Publish article: ${title}`,
+                        content: btoa(unescape(encodeURIComponent(mdContent))),
+                        branch: "main"
+                    });
+
+                    // Trigger deploy
+                    if (this.deployHook) {
+                        this.showToast('Triggering deployment...', 'info');
+                        await fetch(this.deployHook, { method: 'POST' });
+                    }
+
+                    this.showToast('✅ Article published & deploying!', 'success');
+                    this.clearEditor();
+                    this.loadDashboard();
+                    
+                } catch (e) {
+                    this.showToast('Error: ' + e.message, 'error');
+                }
+            }
+
+            htmlToMarkdown(html) {
+                // Simple HTML to text conversion
+                const temp = document.createElement('div');
+                temp.innerHTML = html;
+                return temp.textContent || temp.innerText || '';
+            }
+
+            async deleteArticle(slug, sha) {
+                if (!confirm(`Delete "${slug}"?`)) return;
+                
+                try {
+                    await this.ghAPI(`/contents/content/articles/${slug}.md`, 'DELETE', {
+                        message: `Delete ${slug}`,
+                        sha,
+                        branch: "main"
+                    });
+                    
+                    if (this.deployHook) {
+                        await fetch(this.deployHook, { method: 'POST' });
+                    }
+                    
+                    this.showToast('Article deleted', 'success');
+                    this.loadDashboard();
+                    this.loadArticlesList();
+                } catch (e) {
+                    this.showToast('Error: ' + e.message, 'error');
+                }
+            }
+
+            async uploadMedia(files) {
+                for (const file of files) {
+                    try {
+                        this.showToast(`Uploading ${file.name}...`, 'info');
+                        const base64 = await this.fileToBase64(file);
+                        await this.ghAPI(`/contents/public/images/${file.name}`, 'PUT', {
+                            message: `Upload ${file.name}`,
+                            content: base64.split(',')[1],
+                            branch: "main"
+                        });
+                    } catch (e) {
+                        this.showToast(`Error uploading ${file.name}: ${e.message}`, 'error');
+                    }
+                }
+                
+                this.showToast('Upload complete!', 'success');
+                this.loadMediaLibrary();
+            }
+
+            async deleteMedia(filename, sha) {
+                if (!confirm(`Delete "${filename}"?`)) return;
+                
+                try {
+                    await this.ghAPI(`/contents/public/images/${filename}`, 'DELETE', {
+                        message: `Delete ${filename}`,
+                        sha,
+                        branch: "main"
+                    });
+                    this.showToast('File deleted', 'success');
+                    this.loadMediaLibrary();
+                } catch (e) {
+                    this.showToast('Error: ' + e.message, 'error');
+                }
+            }
+
+            async triggerDeploy() {
+                if (!this.deployHook) {
+                    this.showToast('No deploy hook configured', 'error');
+                    return;
+                }
+                
+                try {
+                    this.showToast('Triggering deployment...', 'info');
+                    await fetch(this.deployHook, { method: 'POST' });
+                    this.showToast('✅ Deployment triggered!', 'success');
+                } catch (e) {
+                    this.showToast('Error: ' + e.message, 'error');
+                }
+            }
+
+            insertImage() {
+                const url = prompt('Enter image URL:');
+                if (url) {
+                    document.execCommand('insertImage', false, url);
+                }
+            }
+
+            saveSettings() {
+                this.token = document.getElementById('settingsToken').value;
+                this.repo = document.getElementById('settingsRepo').value;
+                this.deployHook = document.getElementById('settingsHook').value;
+
+                if (!this.token || !this.repo) {
+                    this.showToast('Token and repository are required', 'error');
+                    return;
+                }
+
+                localStorage.setItem('gh_token', this.token);
+                localStorage.setItem('gh_repo', this.repo);
+                localStorage.setItem('deploy_hook', this.deployHook);
+
+                this.showToast('Settings saved! 🔥', 'success');
+                this.loadDashboard();
+            }
+
+            logout() {
+                localStorage.clear();
+                location.reload();
+            }
+
+            clearEditor() {
+                document.getElementById('contentTitle').value = '';
+                document.getElementById('contentSlug').value = '';
+                document.getElementById('contentExcerpt').value = '';
+                document.getElementById('contentTags').value = '';
+                document.getElementById('featuredImage').value = '';
+                document.getElementById('editorContent').innerHTML = '<h1>Start Writing Your Article</h1><p>Write your content here.</p>';
+            }
+
+            saveDraft() {
+                const content = {
+                    title: document.getElementById('contentTitle').value,
+                    slug: document.getElementById('contentSlug').value,
+                    excerpt: document.getElementById('contentExcerpt').value,
+                    html: document.getElementById('editorContent').innerHTML,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('nexuscms_draft', JSON.stringify(content));
+                this.showToast('Draft saved locally', 'success');
+            }
+
+            fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+            }
+
+            switchView(view) {
+                document.querySelectorAll('.view-container').forEach(v => v.classList.add('hidden'));
+                const viewElement = document.getElementById(`view-${view}`);
+                if (viewElement) viewElement.classList.remove('hidden');
+
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active', 'text-yellow-400');
+                    item.classList.add('text-gray-400');
+                });
+
+                const activeNav = document.querySelector(`[data-view="${view}"]`);
+                if (activeNav) {
+                    activeNav.classList.add('active', 'text-yellow-400');
+                    activeNav.classList.remove('text-gray-400');
+                }
+
+                // Load data for specific views
+                if (view === 'articles') this.loadArticlesList();
+                if (view === 'media') this.loadMediaLibrary();
+                if (view === 'settings') {
+                    document.getElementById('settingsToken').value = this.token || '';
+                    document.getElementById('settingsRepo').value = this.repo || '';
+                    document.getElementById('settingsHook').value = this.deployHook || '';
+                }
+
+                if (window.innerWidth < 1024) {
+                    document.getElementById('sidebar').classList.add('-translate-x-full');
+                }
+            }
+
+            closeAIModal() {
+                document.getElementById('aiModal').classList.add('hidden');
+            }
+
+            showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                const colors = {
+                    success: 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-black',
+                    error: 'bg-gradient-to-r from-red-500 to-red-600 text-white',
+                    warning: 'bg-gradient-to-r from-yellow-400 to-red-500 text-black',
+                    info: 'bg-neutral-800 text-yellow-400 border border-yellow-500/30'
+                };
+                toast.className = `toast px-4 py-3 rounded-lg shadow-lg font-medium ${colors[type] || colors.info}`;
+                toast.textContent = message;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
             }
         }
 
-        // --- DELETE ARTICLE ---
-        async function deleteArticle(slug, sha) {
-            if(!confirm(`Delete ${slug}?`)) return;
-            try {
-                await ghAPI(`/contents/content/articles/${slug}.md`, 'DELETE', { message: `Delete ${slug}`, sha, branch: "main" });
-                await fetch(DEPLOY_HOOK, { method: 'POST' });
-                loadArticles();
-            } catch(e) { alert("Error: " + e.message); }
-        }
-
-        // --- UTILS ---
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
-        function showStatus(msg, isSuccess, isError) {
-            const el = document.getElementById('status-msg');
-            el.className = `status ${isSuccess ? 'success' : isError ? 'error' : ''}`;
-            el.innerText = msg;
-        }
-
-        // Auto-login if token exists
-        if (token && repo) showDashboard();
+        let cms;
+        document.addEventListener('DOMContentLoaded', () => {
+            cms = new NexusCMS();
+        });
     </script>
 </body>
 </html>

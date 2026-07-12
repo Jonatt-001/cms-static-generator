@@ -1,0 +1,179 @@
+---
+layout: base.html
+title: "All Articles"
+description: "Browse all articles on NexusCMS"
+eleventyNavigation:
+  key: Articles
+  order: 1
+pagination:
+  data: collections.articles
+  size: 12
+  reverse: true
+---
+
+<style>
+  .articles-hero {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  
+  .articles-hero h1 {
+    font-size: 48px;
+    font-weight: 900;
+    color: #FFD700;
+    margin-bottom: 15px;
+    letter-spacing: -1px;
+  }
+  
+  .articles-hero p {
+    font-size: 18px;
+    color: #888888;
+  }
+  
+  .articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 80px;
+  }
+  
+  .article-card {
+    background: var(--black-light, #1a1a1a);
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  
+  .article-card:hover {
+    border-color: var(--yellow, #FFD700);
+    transform: translateY(-5px);
+  }
+  
+  .article-card-image {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .article-card-content {
+    padding: 25px;
+  }
+  
+  .article-card h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    font-weight: 700;
+  }
+  
+  .article-card h3 a:hover {
+    color: var(--yellow, #FFD700);
+  }
+  
+  .article-card p {
+    font-size: 14px;
+    color: #888888;
+    margin-bottom: 15px;
+    line-height: 1.6;
+  }
+  
+  .article-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 12px;
+    color: #888888;
+  }
+  
+  .read-more {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: var(--yellow, #FFD700);
+    color: var(--black, #000000);
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  
+  .read-more:hover {
+    background: var(--yellow-dark, #D4AF00);
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 60px;
+    flex-wrap: wrap;
+  }
+  
+  .pagination a,
+  .pagination span {
+    padding: 10px 15px;
+    border: 2px solid #333;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    color: white;
+  }
+  
+  .pagination a:hover {
+    border-color: var(--yellow, #FFD700);
+    color: var(--yellow, #FFD700);
+  }
+  
+  .pagination .active {
+    background: var(--yellow, #FFD700);
+    color: black;
+    border-color: var(--yellow, #FFD700);
+  }
+</style>
+
+<div class="articles-hero">
+  <h1>All Articles</h1>
+  <p>Explore our collection of articles and insights</p>
+</div>
+
+<div class="articles-grid">
+  {% for article in pagination.items %}
+  <article class="article-card">
+    {% if article.data.image %}
+    <div class="article-card-image" style="background-image: url('{{ article.data.image }}')"></div>
+    {% endif %}
+    <div class="article-card-content">
+      <h3>
+        <a href="{{ article.url }}">{{ article.data.title }}</a>
+      </h3>
+      <p>{{ article.data.description }}</p>
+      <div class="article-meta">
+        <span>{{ article.data.date | readableDate }}</span>
+        <span>•</span>
+        <span>{{ article.templateContent | readingTime }} min read</span>
+      </div>
+      <a href="{{ article.url }}" class="read-more">Read Article</a>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+{% if pagination.pages.length > 1 %}
+<div class="pagination">
+  {% if pagination.previousPageHref %}
+    <a href="{{ pagination.previousPageHref }}">← Previous</a>
+  {% endif %}
+  
+  {% for page in pagination.pages %}
+    {% if page == pagination.pageNumber %}
+      <span class="active">{{ page + 1 }}</span>
+    {% else %}
+      <a href="{{ pagination.hrefs[loop.index0] }}">{{ page + 1 }}</a>
+    {% endif %}
+  {% endfor %}
+  
+  {% if pagination.nextPageHref %}
+    <a href="{{ pagination.nextPageHref }}">Next →</a>
+  {% endif %}
+</div>
+{% endif %}

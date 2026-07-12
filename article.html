@@ -1,526 +1,218 @@
 ---
 layout: base.html
-pagination:
-  data: collections.articles
-  size: 1
-  alias: article
-permalink: "/article/{{ article.fileSlug }}/"
-eleventyComputed:
-  title: "{{ article.data.title }}"
-  description: "{{ article.data.description }}"
 ---
 
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    
-    <!-- Primary Meta Tags -->
-    <title>{{ article.data.title }} | {{ site.title }}</title>
-    <meta name="title" content="{{ article.data.title }}">
-    <meta name="description" content="{{ article.data.description }}">
-    <meta name="author" content="{{ site.author }}">
-    <meta name="robots" content="index, follow">
-    <meta name="language" content="English">
-    <link rel="canonical" href="{{ site.url }}{{ article.url }}">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="{{ site.url }}{{ article.url }}">
-    <meta property="og:title" content="{{ article.data.title }}">
-    <meta property="og:description" content="{{ article.data.description }}">
-    <meta property="og:image" content="{% if article.data.image %}{{ site.url }}{{ article.data.image }}{% else %}{{ site.url }}/images/default-og.jpg{% endif %}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:site_name" content="{{ site.title }}">
-    <meta property="article:published_time" content="{{ article.data.date }}">
-    <meta property="article:modified_time" content="{{ article.data.date }}">
-    <meta property="article:author" content="{{ site.author }}">
-    {% if article.data.tags %}
-    {% for tag in article.data.tags %}
-    <meta property="article:tag" content="{{ tag }}">
-    {% endfor %}
-    {% endif %}
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ site.url }}{{ article.url }}">
-    <meta property="twitter:title" content="{{ article.data.title }}">
-    <meta property="twitter:description" content="{{ article.data.description }}">
-    <meta property="twitter:image" content="{% if article.data.image %}{{ site.url }}{{ article.data.image }}{% else %}{{ site.url }}/images/default-og.jpg{% endif %}">
-    <meta property="twitter:creator" content="{{ site.twitter }}">
-    
-    <!-- Schema.org Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": "{{ article.data.title }}",
-        "description": "{{ article.data.description }}",
-        "image": "{% if article.data.image %}{{ site.url }}{{ article.data.image }}{% else %}{{ site.url }}/images/default-og.jpg{% endif %}",
-        "datePublished": "{{ article.data.date }}",
-        "dateModified": "{{ article.data.date }}",
-        "author": {
-            "@type": "Person",
-            "name": "{{ site.author }}"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "{{ site.title }}",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "{{ site.url }}/logo.png"
-            }
-        },
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": "{{ site.url }}{{ article.url }}"
-        }
+<style>
+  .article-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .article-header {
+    margin-bottom: 50px;
+  }
+  
+  .article-header h1 {
+    font-size: 48px;
+    font-weight: 900;
+    color: #FFD700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+    letter-spacing: -1px;
+  }
+  
+  .article-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    color: #888888;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .article-meta span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .article-meta-divider {
+    color: #333;
+  }
+  
+  .article-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .article-tag {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(255, 215, 0, 0.1);
+    color: #FFD700;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+  }
+  
+  .article-image {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 50px;
+    border: 1px solid #333;
+  }
+  
+  .article-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #ffffff;
+  }
+  
+  .article-content h2 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #FFD700;
+    margin: 40px 0 20px 0;
+    line-height: 1.3;
+  }
+  
+  .article-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #FDE047;
+    margin: 30px 0 15px 0;
+  }
+  
+  .article-content p {
+    margin-bottom: 20px;
+  }
+  
+  .article-content ul,
+  .article-content ol {
+    margin: 20px 0 20px 20px;
+  }
+  
+  .article-content li {
+    margin-bottom: 10px;
+  }
+  
+  .article-content code {
+    background: #1a1a1a;
+    color: #FFD700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 14px;
+  }
+  
+  .article-content pre {
+    background: #0a0a0a;
+    color: #FDE047;
+    padding: 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 20px 0;
+    border: 1px solid #333;
+    line-height: 1.4;
+  }
+  
+  .article-content pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+  }
+  
+  .article-content blockquote {
+    border-left: 4px solid #FFD700;
+    padding: 20px;
+    margin: 20px 0;
+    background: rgba(255, 215, 0, 0.05);
+    font-style: italic;
+    color: #FCA5A5;
+  }
+  
+  .article-content a {
+    color: #FFD700;
+    text-decoration: underline;
+    text-decoration-color: #EF4444;
+  }
+  
+  .article-content a:hover {
+    color: #FDE047;
+  }
+  
+  .article-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 30px 0;
+    border: 1px solid #333;
+  }
+  
+  .article-footer {
+    margin-top: 80px;
+    padding-top: 30px;
+    border-top: 2px solid #333;
+  }
+  
+  @media (max-width: 768px) {
+    .article-header h1 {
+      font-size: 32px;
     }
-    </script>
     
-    <!-- Preload Critical Resources -->
-    <link rel="preload" href="https://rsms.me/inter/inter.css" as="style">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Styles -->
-    <link rel='stylesheet' href='https://rsms.me/inter/inter.css'>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        /* Critical CSS for above-the-fold content */
-        body { font-family: 'Inter', system-ui, sans-serif; }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
-        
-        /* Reading progress bar */
-        .reading-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 3px;
-            background: linear-gradient(90deg, #ef4444, #facc15);
-            z-index: 9999;
-            transition: width 0.1s ease;
-        }
-        
-        /* Article content styling */
-        .article-content {
-            font-size: 1.125rem;
-            line-height: 1.8;
-            color: #374151;
-        }
-        
-        .article-content h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin: 2rem 0 1rem;
-            color: #111827;
-            line-height: 1.2;
-        }
-        
-        .article-content h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 2.5rem 0 1rem;
-            color: #1f2937;
-            line-height: 1.3;
-        }
-        
-        .article-content h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 2rem 0 0.75rem;
-            color: #374151;
-        }
-        
-        .article-content p {
-            margin: 1.5rem 0;
-        }
-        
-        .article-content ul, .article-content ol {
-            margin: 1.5rem 0;
-            padding-left: 2rem;
-        }
-        
-        .article-content li {
-            margin: 0.5rem 0;
-        }
-        
-        .article-content blockquote {
-            border-left: 4px solid #ef4444;
-            padding-left: 1.5rem;
-            margin: 2rem 0;
-            font-style: italic;
-            color: #6b7280;
-            background: #fef2f2;
-            padding: 1rem 1.5rem;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .article-content code {
-            background: #f3f4f6;
-            color: #ef4444;
-            padding: 0.2em 0.4em;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .article-content pre {
-            background: #1f2937;
-            color: #f9fafb;
-            padding: 1.5rem;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 2rem 0;
-        }
-        
-        .article-content pre code {
-            background: transparent;
-            color: inherit;
-            padding: 0;
-        }
-        
-        .article-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            margin: 2rem 0;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .article-content a {
-            color: #ef4444;
-            text-decoration: underline;
-            text-decoration-color: #facc15;
-            text-underline-offset: 2px;
-            transition: color 0.2s;
-        }
-        
-        .article-content a:hover {
-            color: #dc2626;
-        }
-        
-        /* Smooth animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        /* Share buttons */
-        .share-btn {
-            transition: all 0.2s;
-        }
-        
-        .share-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        /* Table of contents */
-        .toc {
-            background: #f9fafb;
-            border-left: 3px solid #ef4444;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 2rem 0;
-        }
-        
-        .toc a {
-            color: #4b5563;
-            text-decoration: none;
-            display: block;
-            padding: 0.25rem 0;
-            transition: color 0.2s;
-        }
-        
-        .toc a:hover {
-            color: #ef4444;
-        }
-    </style>
-</head>
+    .article-image {
+      height: 300px;
+    }
+  }
+</style>
 
-<body class="bg-white text-gray-900 antialiased">
-    <!-- Reading Progress Bar -->
-    <div class="reading-progress" id="readingProgress"></div>
+<article class="article-container">
+  <header class="article-header">
+    <h1>{{ title }}</h1>
     
-    <!-- Navigation -->
-    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <a href="/" class="flex items-center space-x-2 text-gray-900 hover:text-red-500 transition-colors">
-                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                    </svg>
-                    <span class="font-bold text-lg">{{ site.title }}</span>
-                </a>
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="text-sm font-medium text-gray-600 hover:text-red-500 transition-colors">Home</a>
-                    <a href="/articles/" class="text-sm font-medium text-gray-600 hover:text-red-500 transition-colors">Articles</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <div class="article-meta">
+      <span>
+        <i class="far fa-calendar"></i>
+        {{ date | readableDate }}
+      </span>
+      <span class="article-meta-divider">•</span>
+      <span>
+        <i class="far fa-clock"></i>
+        {{ content | readingTime }} min read
+      </span>
+      {% if author %}
+      <span class="article-meta-divider">•</span>
+      <span>
+        <i class="far fa-user"></i>
+        {{ author }}
+      </span>
+      {% endif %}
+    </div>
     
-    <!-- Article Header -->
-    <header class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 fade-in-up">
-        <!-- Breadcrumb -->
-        <nav class="mb-6 text-sm" aria-label="Breadcrumb">
-            <ol class="list-none p-0 inline-flex text-gray-500">
-                <li class="flex items-center">
-                    <a href="/" class="hover:text-red-500 transition-colors">Home</a>
-                    <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                        <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"></path>
-                    </svg>
-                </li>
-                <li class="flex items-center">
-                    <a href="/articles/" class="hover:text-red-500 transition-colors">Articles</a>
-                    <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                        <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"></path>
-                    </svg>
-                </li>
-                <li>
-                    <span class="text-gray-900 font-medium">{{ article.data.title }}</span>
-                </li>
-            </ol>
-        </nav>
-        
-        <!-- Title -->
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight text-gray-900 mb-6">
-            {{ article.data.title }}
-        </h1>
-        
-        <!-- Meta Info -->
-        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-8">
-            <div class="flex items-center space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <time datetime="{{ article.data.date }}">{{ article.data.date | readableDate }}</time>
-            </div>
-            <span class="text-gray-300">•</span>
-            <div class="flex items-center space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span>{{ article.templateContent | readingTime }} min read</span>
-            </div>
-            <span class="text-gray-300">•</span>
-            <div class="flex items-center space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
-                <span>{{ site.author }}</span>
-            </div>
-        </div>
-        
-        <!-- Tags -->
-        {% if article.data.tags and article.data.tags.length > 0 %}
-        <div class="flex flex-wrap gap-2 mb-8">
-            {% for tag in article.data.tags %}
-            <a href="/tag/{{ tag | slug }}/" class="px-3 py-1 bg-red-50 text-red-600 text-sm font-medium rounded-full hover:bg-red-100 transition-colors">
-                #{{ tag }}
-            </a>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </header>
-    
-    <!-- Featured Image -->
-    {% if article.data.image %}
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 fade-in-up">
-        {% assign imgSrc = article.data.image %}
-        {% unless imgSrc contains 'http' or imgSrc contains '/images/' %}
-            {% assign imgSrc = "/images/" | append: imgSrc %}
-        {% endunless %}
-        
-        <img 
-            src="{{ imgSrc }}" 
-            alt="{{ article.data.title }}" 
-            class="w-full h-auto rounded-2xl shadow-2xl"
-            loading="eager"
-        >
+    {% if tags and tags.length > 0 %}
+    <div class="article-tags">
+      {% for tag in tags %}
+      <span class="article-tag">{{ tag }}</span>
+      {% endfor %}
     </div>
     {% endif %}
-
-    
-    <!-- Article Content -->
-    <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div class="article-content prose prose-lg max-w-none">
-            {{ article.templateContent }}
-        </div>
-        
-        <!-- Article Footer -->
-        <footer class="mt-16 pt-8 border-t border-gray-200">
-            <!-- Share Buttons -->
-            <div class="mb-12">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">Share this article</h3>
-                <div class="flex flex-wrap gap-3">
-                    <a href="https://twitter.com/intent/tweet?text={{ article.data.title | url_encode }}&url={{ site.url }}{{ article.url | url_encode }}" 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       class="share-btn inline-flex items-center space-x-2 px-4 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                        </svg>
-                        <span>Twitter</span>
-                    </a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ site.url }}{{ article.url | url_encode }}" 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       class="share-btn inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                        </svg>
-                        <span>Facebook</span>
-                    </a>
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ site.url }}{{ article.url | url_encode }}&title={{ article.data.title | url_encode }}" 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       class="share-btn inline-flex items-center space-x-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-medium transition-colors">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                        </svg>
-                        <span>LinkedIn</span>
-                    </a>
-                    <button onclick="copyToClipboard('{{ site.url }}{{ article.url }}')" 
-                            class="share-btn inline-flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-                        </svg>
-                        <span>Copy Link</span>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Author Bio -->
-            <div class="bg-gradient-to-br from-red-50 to-yellow-50 rounded-2xl p-8 mb-12">
-                <div class="flex items-start space-x-4">
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-yellow-500 flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">
-                        {{ site.author | first }}
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Written by {{ site.author }}</h3>
-                        <p class="text-gray-600 mb-4">{{ site.bio }}</p>
-                        <div class="flex space-x-4">
-                            {% if site.twitter %}
-                            <a href="https://twitter.com/{{ site.twitter }}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-red-500 transition-colors">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                                </svg>
-                            </a>
-                            {% endif %}
-                            {% if site.github %}
-                            <a href="https://github.com/{{ site.github }}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-red-500 transition-colors">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                                </svg>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
- <!-- Related Articles -->
-<div class="mb-12">
-    <h3 class="text-2xl font-bold text-gray-900 mb-6">Related Articles</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {% assign recent_articles = collections.articles | reverse %}
-        {% for related in recent_articles limit:2 %}
-            {% if related.url != article.url %}
-            <a href="{{ related.url }}" class="group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300">
-                {% if related.data.image %}
-                <img src="{{ related.data.image }}" alt="{{ related.data.title }}" class="w-full h-48 object-cover" loading="lazy">
-                {% endif %}
-                <div class="p-6">
-                    <h4 class="text-lg font-bold text-gray-900 group-hover:text-red-500 transition-colors mb-2">
-                        {{ related.data.title }}
-                    </h4>
-                    <p class="text-gray-600 text-sm line-clamp-2">{{ related.data.description }}</p>
-                    <div class="mt-4 flex items-center text-sm text-gray-500">
-                        <time datetime="{{ related.data.date }}">{{ related.data.date | readableDate }}</time>
-                    </div>
-                </div>
-            </a>
-            {% endif %}
-        {% endfor %}
-    </div>
-</div>
-
-
-        </footer>
-    </article>
-    
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-gray-400">&copy; {{ site.title }}. All rights reserved.</p>
-            <div class="mt-4 flex justify-center space-x-6">
-                <a href="/" class="text-gray-400 hover:text-white transition-colors">Home</a>
-                <a href="/articles/" class="text-gray-400 hover:text-white transition-colors">Articles</a>
-                <a href="/rss.xml" class="text-gray-400 hover:text-white transition-colors">RSS</a>
-            </div>
-        </div>
-    </footer>
-    
-    <!-- Scripts -->
-    <script>
-        // Reading progress bar
-        window.addEventListener('scroll', () => {
-            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
-            document.getElementById('readingProgress').style.width = scrolled + '%';
-        });
-        
-        // Copy to clipboard
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Link copied to clipboard!');
-            });
-        }
-        
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-    </script>
-</body>
-</html>
-
+  </header>
+  
+  {% if image %}
+  <img src="{{ image }}" alt="{{ title }}" class="article-image">
+  {% endif %}
+  
+  <div class="article-content">
+    {{ content | safe }}
+  </div>
+  
+  <footer class="article-footer">
+    <p>Published on {{ date | readableDate }} by {{ site.author }}</p>
+  </footer>
+</article>

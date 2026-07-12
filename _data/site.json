@@ -1,10 +1,7 @@
 {
-    "title": "TrendRader",
-    "description": "Fully globally , stay updated",
-    "url": "https://kaali-cms.netlify.app",
-    "author": "TrendRader",
-    "bio": "Your news home",
-    "twitter": "yourtwitter",
-    "github": "yourgithub"
+  "title": "NexusCMS",
+  "description": "A modern static site CMS powered by Eleventy",
+  "author": "Admin",
+  "url": "http://localhost:8080",
+  "language": "en"
 }
-

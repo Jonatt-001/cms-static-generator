@@ -1,6 +1,290 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ title }}</title><meta name="description" content="{{ description }}">
-<link rel="sitemap" href="/sitemap.xml"><link rel="alternate" type="application/rss+xml" href="/rss.xml">
-</head><body><main>{{ content }}</main></body></html>
+<html lang="{{ site.language }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{ title or site.title }} - {{ site.description }}</title>
+  <meta name="description" content="{{ description or site.description }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <meta property="og:title" content="{{ title or site.title }}">
+  <meta property="og:description" content="{{ description or site.description }}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ site.url }}">
+  <link rel="canonical" href="{{ site.url }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ site.url }}/rss.xml">
+  
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --yellow: #FFD700;
+      --yellow-dark: #D4AF00;
+      --black: #000000;
+      --black-light: #1a1a1a;
+      --black-dark: #0a0a0a;
+      --gray: #888888;
+      --white: #ffffff;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.6;
+    }
+    
+    a { text-decoration: none; color: inherit; transition: all 0.3s; }
+    
+    .fixed-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--black);
+      border-bottom: 2px solid var(--yellow);
+      z-index: 1000;
+    }
+    
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 70px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .nav-logo h1 {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--yellow);
+      letter-spacing: -1px;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+    
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .nav-links a:hover {
+      color: var(--yellow);
+    }
+    
+    .nav-icons {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    
+    .nav-icons i {
+      font-size: 20px;
+      color: var(--white);
+      cursor: pointer;
+    }
+    
+    .nav-icons i:hover {
+      color: var(--yellow);
+    }
+    
+    .content-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 70px 40px 60px;
+    }
+    
+    footer {
+      background: var(--black-dark);
+      border-top: 2px solid var(--yellow);
+      padding: 60px 40px 40px;
+      margin-top: 80px;
+    }
+    
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 60px;
+      margin-bottom: 40px;
+    }
+    
+    .footer-brand h3 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: var(--yellow);
+      font-weight: 900;
+    }
+    
+    .footer-brand p {
+      color: var(--gray);
+      line-height: 1.8;
+    }
+    
+    .footer-links h4 {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 12px;
+    }
+    
+    .footer-links a {
+      color: var(--gray);
+      font-size: 14px;
+    }
+    
+    .footer-links a:hover {
+      color: var(--yellow);
+    }
+    
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding-top: 30px;
+      border-top: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--gray);
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .social-links a {
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--yellow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--yellow);
+    }
+    
+    .social-links a:hover {
+      background: var(--yellow);
+      color: var(--black);
+    }
+    
+    @media (max-width: 1024px) {
+      .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .nav {
+        padding: 0 20px;
+      }
+      
+      .nav-links {
+        display: none;
+      }
+      
+      .content-container {
+        padding: 70px 20px 40px;
+      }
+      
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+  </style>
+</head>
 
+<body>
+  <header class="fixed-header">
+    <nav class="nav">
+      <div class="nav-logo">
+        <a href="/">
+          <h1>{{ site.title }}</h1>
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/articles/">Articles</a>
+        <a href="/rss.xml">RSS</a>
+      </div>
+      <div class="nav-icons">
+        <i class="fas fa-search"></i>
+        <i class="fas fa-bars"></i>
+      </div>
+    </nav>
+  </header>
+
+  <main class="content-container">
+    {{ content | safe }}
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>{{ site.title }}</h3>
+        <p>{{ site.description }}</p>
+        <p style="margin-top: 20px;">Stay updated with the latest in technology and innovation.</p>
+      </div>
+      
+      <div class="footer-links">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/articles/">Articles</a></li>
+          <li><a href="/rss.xml">RSS Feed</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="/sitemap.xml">Sitemap</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h4>Connect</h4>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>© 2026 {{ site.title }}. All rights reserved.</p>
+      <p>Powered by Eleventy</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -5,6 +5,9 @@ pagination:
   size: 1
   alias: article
 permalink: "/article/{{ article.fileSlug }}/"
+eleventyComputed:
+  title: "{{ article.data.title }}"
+  description: "{{ article.data.description }}"
 ---
 
 <!DOCTYPE html>
@@ -355,16 +358,20 @@ permalink: "/article/{{ article.fileSlug }}/"
     <!-- Featured Image -->
     {% if article.data.image %}
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 fade-in-up">
+        {% assign imgSrc = article.data.image %}
+        {% unless imgSrc contains 'http' or imgSrc contains '/images/' %}
+            {% assign imgSrc = "/images/" | append: imgSrc %}
+        {% endunless %}
+        
         <img 
-            src="{{ article.data.image }}" 
+            src="{{ imgSrc }}" 
             alt="{{ article.data.title }}" 
             class="w-full h-auto rounded-2xl shadow-2xl"
             loading="eager"
-            width="1200"
-            height="630"
         >
     </div>
     {% endif %}
+
     
     <!-- Article Content -->
     <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">

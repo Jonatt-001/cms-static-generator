@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KAALI OS - SYSTEM</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -73,10 +74,10 @@
         .component-item:hover { border-color: #facc15; background: rgba(250, 204, 21, 0.05); }
         .article-card { transition: all 0.2s; }
         .article-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(250, 204, 21, 0.1); }
+        .edit-mode-banner { background: linear-gradient(90deg, #facc15, #ef4444); color: #000; padding: 12px; text-align: center; font-weight: 700; border-radius: 8px; margin-bottom: 20px; }
     </style>
 </head>
 <body class="h-full bg-black text-gray-100 transition-colors">
-    <!-- App Container -->
     <div id="app" class="h-full flex flex-col">
         <!-- Top Navigation -->
         <nav class="bg-black border-b border-neutral-800 sticky top-0 z-50 shadow-lg shadow-black/50">
@@ -144,24 +145,6 @@
                         </svg>
                         Articles
                     </a>
-                    <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="builder">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
-                        </svg>
-                        Page Builder
-                    </a>
-                    <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="media">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        Media Library
-                    </a>
-                    <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="seo">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        SEO Manager
-                    </a>
                     <a href="#" class="nav-item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-neutral-900" data-view="settings">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -214,13 +197,13 @@
                         <div class="bg-neutral-900 rounded-xl p-6 shadow-lg border border-neutral-800 hover:border-yellow-500/50 transition-colors">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-400">Media Files</p>
-                                    <p id="stat-media" class="mt-2 text-3xl font-bold text-yellow-300">0</p>
-                                    <p class="mt-2 text-sm text-gray-500">→ In repository</p>
+                                    <p class="text-sm font-medium text-gray-400">Storage</p>
+                                    <p class="mt-2 text-2xl font-bold text-green-400">● Supabase</p>
+                                    <p class="mt-2 text-sm text-gray-500">Images on CDN</p>
                                 </div>
-                                <div class="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                <div class="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                     </svg>
                                 </div>
                             </div>
@@ -257,11 +240,11 @@
                                 </svg>
                                 <span class="text-sm font-medium text-white">View Articles</span>
                             </button>
-                            <button onclick="cms.switchView('media')" class="flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-yellow-500/10 to-red-500/5 border border-neutral-700 hover:border-yellow-400 transition-colors">
+                            <button onclick="cms.switchView('dashboard')" class="flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-yellow-500/10 to-red-500/5 border border-neutral-700 hover:border-yellow-400 transition-colors">
                                 <svg class="w-8 h-8 text-yellow-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                <span class="text-sm font-medium text-white">Upload Media</span>
+                                <span class="text-sm font-medium text-white">Storage</span>
                             </button>
                             <button onclick="cms.triggerDeploy()" class="flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-red-500/10 to-yellow-500/5 border border-neutral-700 hover:border-red-400 transition-colors">
                                 <svg class="w-8 h-8 text-red-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,17 +266,25 @@
 
                 <!-- Content Editor View -->
                 <div id="view-editor" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
+                    <!-- Edit Mode Banner -->
+                    <div id="editModeBanner" class="edit-mode-banner hidden">
+                        ✏️ EDIT MODE: You are editing an existing article
+                    </div>
+
                     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl sm:text-3xl font-bold text-white">Content Editor</h1>
+                            <h1 id="editorTitle" class="text-2xl sm:text-3xl font-bold text-white">Content Editor</h1>
                             <p class="mt-1 text-gray-400">Create and publish articles to your site</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <button onclick="cms.saveDraft()" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black rounded-lg font-semibold transition-colors">
                                 Save Draft
                             </button>
-                            <button onclick="cms.publishArticle()" class="px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded-lg font-semibold transition-colors">
-                                🚀 Publish
+                            <button id="publishButton" onclick="cms.publishArticle()" class="px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded-lg font-semibold transition-colors">
+                                 Publish
+                            </button>
+                            <button id="cancelEditButton" onclick="cms.cancelEdit()" class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg font-semibold transition-colors hidden">
+                                Cancel Edit
                             </button>
                         </div>
                     </div>
@@ -374,6 +365,11 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-300 mb-2">Featured Image</label>
                                     <input type="file" id="featuredImage" accept="image/*" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white text-sm">
+                                    <p class="mt-1 text-xs text-gray-500">Stored in Supabase</p>
+                                    <div id="currentImagePreview" class="mt-2 hidden">
+                                        <p class="text-xs text-yellow-400 mb-1">Current image:</p>
+                                        <img id="currentImage" src="" alt="Current image" class="w-full h-32 object-cover rounded-lg border border-neutral-700">
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-300 mb-2">Tags</label>
@@ -401,24 +397,6 @@
                     </div>
                 </div>
 
-                <!-- Media Library View -->
-                <div id="view-media" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
-                    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div>
-                            <h1 class="text-2xl sm:text-3xl font-bold text-white">Media Library</h1>
-                            <p class="mt-1 text-gray-400">Manage your images and files</p>
-                        </div>
-                        <button onclick="document.getElementById('mediaUpload').click()" class="px-4 py-2 bg-gradient-to-r from-yellow-500 to-red-500 hover:opacity-90 text-black font-semibold rounded-lg transition-opacity">
-                            Upload Files
-                        </button>
-                        <input type="file" id="mediaUpload" multiple accept="image/*" class="hidden">
-                    </div>
-
-                    <div id="media-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                        <p class="text-gray-500 col-span-full">Loading media...</p>
-                    </div>
-                </div>
-
                 <!-- Settings View -->
                 <div id="view-settings" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
                     <div class="mb-6">
@@ -441,27 +419,27 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-2">Deploy Hook URL</label>
                                 <input type="text" id="settingsHook" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="https://api.netlify.com/build_hooks/...">
-                                <p class="mt-1 text-xs text-gray-500">Get this from Netlify/Vercel site settings</p>
+                                <p class="mt-1 text-xs text-gray-500">Get this from Netlify site settings</p>
                             </div>
-                            <button onclick="cms.saveSettings()" class="w-full px-4 py-2 bg-gradient-to-r from-yellow-500 to-red-500 hover:opacity-90 text-black font-semibold rounded-lg transition-opacity">
+                            
+                            <h3 class="text-lg font-semibold text-yellow-400 mb-4 mt-8">Supabase Storage</h3>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Supabase URL</label>
+                                <input type="text" id="settingsSupabaseUrl" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="https://xxxxx.supabase.co">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Supabase Anon Key</label>
+                                <input type="password" id="settingsSupabaseKey" class="w-full px-3 py-2 border border-neutral-700 rounded-lg bg-neutral-800 text-white" placeholder="eyJ...">
+                            </div>
+                            
+                            <button onclick="cms.saveSettings()" class="w-full mt-6 px-4 py-2 bg-gradient-to-r from-yellow-500 to-red-500 hover:opacity-90 text-black font-semibold rounded-lg transition-opacity">
                                 Save Settings
                             </button>
-                            <button onclick="cms.logout()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg transition-colors">
+                            <button onclick="cms.logout()" class="w-full mt-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg transition-colors">
                                 Logout
                             </button>
                         </div>
                     </div>
-                </div>
-
-                <!-- Placeholder Views -->
-                <div id="view-builder" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">Page Builder</h1>
-                    <p class="text-gray-400">Drag and drop page builder coming soon</p>
-                </div>
-
-                <div id="view-seo" class="view-container hidden p-4 sm:p-6 lg:p-8 fade-in">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">SEO Manager</h1>
-                    <p class="text-gray-400">SEO tools and analytics coming soon</p>
                 </div>
             </main>
         </div>
@@ -490,11 +468,11 @@
                         <p class="text-xs text-gray-500 mt-1">Enhance clarity and readability</p>
                     </button>
                     <button class="w-full p-3 text-left bg-neutral-900 border border-neutral-800 rounded-lg hover:border-yellow-500 hover:bg-yellow-500/5 transition-colors">
-                        <p class="font-medium text-sm text-white">📝 Generate Content</p>
+                        <p class="font-medium text-sm text-white"> Generate Content</p>
                         <p class="text-xs text-gray-500 mt-1">Create content from prompts</p>
                     </button>
                     <button class="w-full p-3 text-left bg-neutral-900 border border-neutral-800 rounded-lg hover:border-red-500 hover:bg-red-500/5 transition-colors">
-                        <p class="font-medium text-sm text-white">🔍 SEO Optimization</p>
+                        <p class="font-medium text-sm text-white"> SEO Optimization</p>
                         <p class="text-xs text-gray-500 mt-1">Optimize for search engines</p>
                     </button>
                 </div>
@@ -512,12 +490,22 @@
                 this.token = localStorage.getItem('gh_token');
                 this.repo = localStorage.getItem('gh_repo');
                 this.deployHook = localStorage.getItem('deploy_hook');
+                this.supabaseUrl = localStorage.getItem('supabase_url') || 'https://rleyphfgelhfxwqizdhn.supabase.co';
+                this.supabaseKey = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsZXlwaGZnZWxoZnh3cWl6ZGhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2ODE2MTYsImV4cCI6MjA5OTI1NzYxNn0.cI2yg_joebT9--3jIb6l4LM6EKysKySEbyYR8YKrGTE';
+                this.bucketName = 'cms-images';
+                this.supabase = null;
                 this.articles = [];
+                this.editingArticle = null; // Track if we're editing
                 
                 this.init();
             }
 
             init() {
+                // Initialize Supabase
+                if (this.supabaseUrl && this.supabaseKey) {
+                    this.supabase = window.supabase.createClient(this.supabaseUrl, this.supabaseKey);
+                }
+                
                 if (!this.token || !this.repo) {
                     this.switchView('settings');
                     this.showToast('Please configure your GitHub connection', 'warning');
@@ -527,7 +515,7 @@
                 
                 this.setupEventListeners();
                 this.setupAutoSlug();
-                console.log('NexusCMS 🔥 initialized');
+                console.log('NexusCMS 🔥 initialized with Supabase');
             }
 
             setupEventListeners() {
@@ -549,10 +537,6 @@
                 document.getElementById('aiAssistantBtn').addEventListener('click', () => {
                     document.getElementById('aiModal').classList.remove('hidden');
                 });
-
-                document.getElementById('mediaUpload').addEventListener('change', (e) => {
-                    this.uploadMedia(e.target.files);
-                });
             }
 
             setupAutoSlug() {
@@ -560,9 +544,12 @@
                 const slugInput = document.getElementById('contentSlug');
                 
                 titleInput.addEventListener('input', (e) => {
-                    slugInput.value = e.target.value.toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-')
-                        .replace(/^-|-$/g, '');
+                    // Only auto-generate slug if not editing
+                    if (!this.editingArticle) {
+                        slugInput.value = e.target.value.toLowerCase()
+                            .replace(/[^a-z0-9]+/g, '-')
+                            .replace(/^-|-$/g, '');
+                    }
                 });
             }
 
@@ -581,25 +568,40 @@
                 return method === 'DELETE' ? true : res.json();
             }
 
+            async uploadImageToSupabase(file, slug) {
+                if (!this.supabase) {
+                    throw new Error('Supabase not initialized. Please configure Supabase settings.');
+                }
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${slug}-${Date.now()}.${fileExt}`;
+                
+                const { data, error } = await this.supabase.storage
+                    .from(this.bucketName)
+                    .upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (error) {
+                    throw new Error(`Upload failed: ${error.message}`);
+                }
+                
+                const { data: { publicUrl } } = this.supabase.storage
+                    .from(this.bucketName)
+                    .getPublicUrl(fileName);
+                
+                return publicUrl;
+            }
+
             async loadDashboard() {
                 try {
-                    // Load articles
                     const files = await this.ghAPI("/contents/content/articles");
                     this.articles = files.filter(f => f.name.endsWith('.md'));
                     
-                    // Update stats
                     document.getElementById('stat-total').textContent = this.articles.length;
                     document.getElementById('stat-published').textContent = this.articles.length;
                     
-                    // Load media count
-                    try {
-                        const media = await this.ghAPI("/contents/public/images");
-                        document.getElementById('stat-media').textContent = media.length;
-                    } catch {
-                        document.getElementById('stat-media').textContent = '0';
-                    }
-                    
-                    // Show recent articles
                     this.showRecentArticles();
                     
                 } catch (e) {
@@ -623,7 +625,10 @@
                                 <p class="text-sm font-medium text-white">${slug}</p>
                                 <p class="text-xs text-gray-500">Published</p>
                             </div>
-                            <button onclick="cms.deleteArticle('${slug}', '${article.sha}')" class="text-red-400 hover:text-red-300 text-sm">Delete</button>
+                            <div class="flex space-x-2">
+                                <button onclick="cms.editArticle('${slug}', '${article.sha}')" class="text-yellow-400 hover:text-yellow-300 text-sm">Edit</button>
+                                <button onclick="cms.deleteArticle('${slug}', '${article.sha}')" class="text-red-400 hover:text-red-300 text-sm">Delete</button>
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -646,6 +651,9 @@
                                 <a href="/article/${slug}/" target="_blank" class="flex-1 px-3 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 text-sm font-medium rounded-lg text-center transition-colors">
                                     View
                                 </a>
+                                <button onclick="cms.editArticle('${slug}', '${article.sha}')" class="flex-1 px-3 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-sm font-medium rounded-lg transition-colors">
+                                    Edit
+                                </button>
                                 <button onclick="cms.deleteArticle('${slug}', '${article.sha}')" class="flex-1 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium rounded-lg transition-colors">
                                     Delete
                                 </button>
@@ -655,35 +663,100 @@
                 }).join('');
             }
 
-            async loadMediaLibrary() {
-                const container = document.getElementById('media-grid');
+            async editArticle(slug, sha) {
+                this.showToast('Loading article...', 'info');
+                
                 try {
-                    const files = await this.ghAPI("/contents/public/images");
-                    const images = files.filter(f => f.type === 'file');
+                    // Fetch the article content from GitHub
+                    const response = await this.ghAPI(`/contents/content/articles/${slug}.md`);
+                    const content = atob(response.content);
                     
-                    if (images.length === 0) {
-                        container.innerHTML = '<p class="text-gray-500 col-span-full">No media files yet.</p>';
-                        return;
+                    // Parse frontmatter and content
+                    const { frontmatter, body } = this.parseMarkdown(content);
+                    
+                    // Set editing state
+                    this.editingArticle = {
+                        slug: slug,
+                        sha: response.sha,
+                        originalImage: frontmatter.image
+                    };
+                    
+                    // Load data into editor
+                    document.getElementById('contentTitle').value = frontmatter.title || '';
+                    document.getElementById('contentSlug').value = slug;
+                    document.getElementById('contentExcerpt').value = frontmatter.description || '';
+                    document.getElementById('contentTags').value = (frontmatter.tags || []).join(', ');
+                    document.getElementById('editorContent').innerHTML = this.markdownToHtml(body);
+                    
+                    // Show current image if exists
+                    if (frontmatter.image) {
+                        document.getElementById('currentImage').src = frontmatter.image;
+                        document.getElementById('currentImagePreview').classList.remove('hidden');
+                    } else {
+                        document.getElementById('currentImagePreview').classList.add('hidden');
                     }
                     
-                    container.innerHTML = images.map(file => `
-                        <div class="group relative aspect-square bg-neutral-900 rounded-lg border border-neutral-800 overflow-hidden hover:border-yellow-500/50 transition-all">
-                            <img src="https://raw.githubusercontent.com/${this.repo}/main/public/images/${file.name}" class="w-full h-full object-cover" alt="${file.name}">
-                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                <button onclick="cms.deleteMedia('${file.name}', '${file.sha}')" class="p-2 bg-red-500 rounded-full hover:bg-red-400">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent">
-                                <p class="text-xs text-white truncate">${file.name}</p>
-                            </div>
-                        </div>
-                    `).join('');
+                    // Update UI for edit mode
+                    document.getElementById('editModeBanner').classList.remove('hidden');
+                    document.getElementById('editorTitle').textContent = 'Edit Article';
+                    document.getElementById('publishButton').textContent = ' Update';
+                    document.getElementById('cancelEditButton').classList.remove('hidden');
+                    
+                    // Switch to editor view
+                    this.switchView('editor');
+                    this.showToast('Article loaded for editing', 'success');
+                    
                 } catch (e) {
-                    container.innerHTML = '<p class="text-gray-500 col-span-full">No media files yet.</p>';
+                    this.showToast('Error loading article: ' + e.message, 'error');
                 }
+            }
+
+            parseMarkdown(content) {
+                // Extract frontmatter between ---
+                const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+                
+                if (!frontmatterMatch) {
+                    return { frontmatter: {}, body: content };
+                }
+                
+                const frontmatterText = frontmatterMatch[1];
+                const body = frontmatterMatch[2];
+                
+                // Parse frontmatter
+                const frontmatter = {};
+                frontmatterText.split('\n').forEach(line => {
+                    const colonIndex = line.indexOf(':');
+                    if (colonIndex > 0) {
+                        const key = line.substring(0, colonIndex).trim();
+                        let value = line.substring(colonIndex + 1).trim();
+                        
+                        // Remove quotes
+                        if (value.startsWith('"') && value.endsWith('"')) {
+                            value = value.slice(1, -1);
+                        }
+                        
+                        // Parse arrays
+                        if (value.startsWith('[') && value.endsWith(']')) {
+                            value = value.slice(1, -1).split(',').map(v => v.trim().replace(/"/g, ''));
+                        }
+                        
+                        frontmatter[key] = value;
+                    }
+                });
+                
+                return { frontmatter, body };
+            }
+
+            markdownToHtml(markdown) {
+                // Simple markdown to HTML conversion
+                return markdown
+                    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                    .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+                    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+                    .replace(/\n/gim, '<br>');
             }
 
             async publishArticle() {
@@ -699,43 +772,52 @@
                     return;
                 }
 
-                this.showToast('Publishing...', 'info');
+                this.showToast(this.editingArticle ? 'Updating...' : 'Publishing...', 'info');
 
                 try {
-                    // Upload image if exists
+                    // Upload image to Supabase if exists
                     let imgPath = "";
                     if (imageFile) {
-                        this.showToast('Uploading image...', 'info');
-                        const base64 = await this.fileToBase64(imageFile);
-                        const imgName = `${slug}-${imageFile.name}`;
-                        await this.ghAPI(`/contents/public/images/${imgName}`, 'PUT', {
-                            message: `Add image for ${slug}`,
-                            content: base64.split(',')[1],
-                            branch: "main"
-                        });
-                        imgPath = `/images/${imgName}`;
+                        this.showToast('Uploading image to Supabase...', 'info');
+                        try {
+                            imgPath = await this.uploadImageToSupabase(imageFile, slug);
+                            this.showToast('Image uploaded successfully!', 'success');
+                        } catch (e) {
+                            this.showToast('Image upload failed: ' + e.message, 'error');
+                            return;
+                        }
+                    } else if (this.editingArticle && this.editingArticle.originalImage) {
+                        // Keep existing image if not uploading new one
+                        imgPath = this.editingArticle.originalImage;
                     }
 
                     // Convert HTML to simple markdown-like format
                     const markdownContent = this.htmlToMarkdown(content);
 
                     // Create markdown file
-                    this.showToast('Writing article...', 'info');
+                    this.showToast(this.editingArticle ? 'Updating article...' : 'Writing article...', 'info');
                     const mdContent = `---
 title: "${title}"
 description: "${description}"
-date: "${new Date().toISOString()}"
+date: "${this.editingArticle ? new Date().toISOString() : new Date().toISOString()}"
 image: "${imgPath}"
 tags: [${tags.split(',').map(t => `"${t.trim()}"`).join(', ')}]
 ---
 
 ${markdownContent}`;
 
-                    await this.ghAPI(`/contents/content/articles/${slug}.md`, 'PUT', {
-                        message: `Publish article: ${title}`,
+                    const requestBody = {
+                        message: this.editingArticle ? `Update article: ${title}` : `Publish article: ${title}`,
                         content: btoa(unescape(encodeURIComponent(mdContent))),
                         branch: "main"
-                    });
+                    };
+
+                    // If editing, include the SHA
+                    if (this.editingArticle) {
+                        requestBody.sha = this.editingArticle.sha;
+                    }
+
+                    await this.ghAPI(`/contents/content/articles/${slug}.md`, 'PUT', requestBody);
 
                     // Trigger deploy
                     if (this.deployHook) {
@@ -743,8 +825,8 @@ ${markdownContent}`;
                         await fetch(this.deployHook, { method: 'POST' });
                     }
 
-                    this.showToast('✅ Article published & deploying!', 'success');
-                    this.clearEditor();
+                    this.showToast(this.editingArticle ? '✅ Article updated & deploying!' : '✅ Article published & deploying!', 'success');
+                    this.cancelEdit();
                     this.loadDashboard();
                     
                 } catch (e) {
@@ -753,10 +835,19 @@ ${markdownContent}`;
             }
 
             htmlToMarkdown(html) {
-                // Simple HTML to text conversion
                 const temp = document.createElement('div');
                 temp.innerHTML = html;
                 return temp.textContent || temp.innerText || '';
+            }
+
+            cancelEdit() {
+                this.editingArticle = null;
+                this.clearEditor();
+                document.getElementById('editModeBanner').classList.add('hidden');
+                document.getElementById('editorTitle').textContent = 'Content Editor';
+                document.getElementById('publishButton').textContent = ' Publish';
+                document.getElementById('cancelEditButton').classList.add('hidden');
+                document.getElementById('currentImagePreview').classList.add('hidden');
             }
 
             async deleteArticle(slug, sha) {
@@ -776,41 +867,6 @@ ${markdownContent}`;
                     this.showToast('Article deleted', 'success');
                     this.loadDashboard();
                     this.loadArticlesList();
-                } catch (e) {
-                    this.showToast('Error: ' + e.message, 'error');
-                }
-            }
-
-            async uploadMedia(files) {
-                for (const file of files) {
-                    try {
-                        this.showToast(`Uploading ${file.name}...`, 'info');
-                        const base64 = await this.fileToBase64(file);
-                        await this.ghAPI(`/contents/public/images/${file.name}`, 'PUT', {
-                            message: `Upload ${file.name}`,
-                            content: base64.split(',')[1],
-                            branch: "main"
-                        });
-                    } catch (e) {
-                        this.showToast(`Error uploading ${file.name}: ${e.message}`, 'error');
-                    }
-                }
-                
-                this.showToast('Upload complete!', 'success');
-                this.loadMediaLibrary();
-            }
-
-            async deleteMedia(filename, sha) {
-                if (!confirm(`Delete "${filename}"?`)) return;
-                
-                try {
-                    await this.ghAPI(`/contents/public/images/${filename}`, 'DELETE', {
-                        message: `Delete ${filename}`,
-                        sha,
-                        branch: "main"
-                    });
-                    this.showToast('File deleted', 'success');
-                    this.loadMediaLibrary();
                 } catch (e) {
                     this.showToast('Error: ' + e.message, 'error');
                 }
@@ -842,6 +898,8 @@ ${markdownContent}`;
                 this.token = document.getElementById('settingsToken').value;
                 this.repo = document.getElementById('settingsRepo').value;
                 this.deployHook = document.getElementById('settingsHook').value;
+                this.supabaseUrl = document.getElementById('settingsSupabaseUrl').value;
+                this.supabaseKey = document.getElementById('settingsSupabaseKey').value;
 
                 if (!this.token || !this.repo) {
                     this.showToast('Token and repository are required', 'error');
@@ -851,6 +909,12 @@ ${markdownContent}`;
                 localStorage.setItem('gh_token', this.token);
                 localStorage.setItem('gh_repo', this.repo);
                 localStorage.setItem('deploy_hook', this.deployHook);
+                localStorage.setItem('supabase_url', this.supabaseUrl);
+                localStorage.setItem('supabase_key', this.supabaseKey);
+
+                if (this.supabaseUrl && this.supabaseKey) {
+                    this.supabase = window.supabase.createClient(this.supabaseUrl, this.supabaseKey);
+                }
 
                 this.showToast('Settings saved! 🔥', 'success');
                 this.loadDashboard();
@@ -882,15 +946,6 @@ ${markdownContent}`;
                 this.showToast('Draft saved locally', 'success');
             }
 
-            fileToBase64(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                });
-            }
-
             switchView(view) {
                 document.querySelectorAll('.view-container').forEach(v => v.classList.add('hidden'));
                 const viewElement = document.getElementById(`view-${view}`);
@@ -907,13 +962,17 @@ ${markdownContent}`;
                     activeNav.classList.remove('text-gray-400');
                 }
 
-                // Load data for specific views
                 if (view === 'articles') this.loadArticlesList();
-                if (view === 'media') this.loadMediaLibrary();
+                if (view === 'editor' && !this.editingArticle) {
+                    // Only clear if not editing
+                    this.clearEditor();
+                }
                 if (view === 'settings') {
                     document.getElementById('settingsToken').value = this.token || '';
                     document.getElementById('settingsRepo').value = this.repo || '';
                     document.getElementById('settingsHook').value = this.deployHook || '';
+                    document.getElementById('settingsSupabaseUrl').value = this.supabaseUrl || '';
+                    document.getElementById('settingsSupabaseKey').value = this.supabaseKey || '';
                 }
 
                 if (window.innerWidth < 1024) {
@@ -952,4 +1011,3 @@ ${markdownContent}`;
     </script>
 </body>
 </html>
-

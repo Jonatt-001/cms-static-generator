@@ -3,216 +3,594 @@ layout: base.html
 ---
 
 <style>
-  .article-container {
-    max-width: 900px;
+  /* Article Container */
+  .article-wrapper {
+    max-width: 1200px;
     margin: 0 auto;
   }
-  
-  .article-header {
-    margin-bottom: 50px;
+
+  /* Hero Image Section */
+  .article-hero {
+    position: relative;
+    height: 600px;
+    margin-bottom: 60px;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(255, 215, 0, 0.1);
   }
-  
-  .article-header h1 {
+
+  .article-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7);
+    transition: transform 0.3s ease;
+  }
+
+  .article-hero:hover img {
+    transform: scale(1.05);
+  }
+
+  .article-hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.95) 100%);
+    padding: 60px 40px 40px;
+    color: white;
+  }
+
+  .article-hero-content h1 {
     font-size: 48px;
     font-weight: 900;
     color: #FFD700;
     margin-bottom: 20px;
     line-height: 1.2;
     letter-spacing: -1px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }
-  
-  .article-meta {
+
+  .article-hero-meta {
     display: flex;
     gap: 20px;
-    font-size: 14px;
-    color: #888888;
-    margin-bottom: 30px;
     flex-wrap: wrap;
+    font-size: 14px;
+    color: #CCCCCC;
   }
-  
-  .article-meta span {
+
+  .article-hero-meta span {
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  
-  .article-meta-divider {
-    color: #333;
+
+  .article-hero-meta i {
+    color: #FFD700;
   }
-  
+
+  /* Article Body */
+  .article-body {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 50px;
+    margin-bottom: 80px;
+  }
+
+  .article-content {
+    font-size: 16px;
+    line-height: 1.9;
+    color: #E8E8E8;
+  }
+
+  .article-content h2 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #FFD700;
+    margin: 50px 0 25px 0;
+    line-height: 1.3;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #333;
+  }
+
+  .article-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #FDE047;
+    margin: 35px 0 18px 0;
+  }
+
+  .article-content h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #FFEB99;
+    margin: 25px 0 12px 0;
+  }
+
+  .article-content p {
+    margin-bottom: 22px;
+    letter-spacing: 0.3px;
+  }
+
+  .article-content p:first-letter {
+    font-size: 1.1em;
+    font-weight: 600;
+  }
+
+  .article-content ul,
+  .article-content ol {
+    margin: 25px 0 25px 28px;
+  }
+
+  .article-content li {
+    margin-bottom: 12px;
+    line-height: 1.8;
+  }
+
+  .article-content li::marker {
+    color: #FFD700;
+    font-weight: bold;
+  }
+
+  .article-content code {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+    color: #FFD700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    border: 1px solid #333;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .article-content pre {
+    background: linear-gradient(135deg, #0a0a0a 0%, #151515 100%);
+    color: #FDE047;
+    padding: 24px;
+    border-radius: 10px;
+    overflow-x: auto;
+    margin: 28px 0;
+    border: 1px solid #333;
+    border-left: 4px solid #FFD700;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    line-height: 1.5;
+  }
+
+  .article-content pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  .article-content blockquote {
+    border-left: 4px solid #FFD700;
+    padding: 24px 24px 24px 30px;
+    margin: 28px 0;
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 215, 0, 0.02) 100%);
+    font-style: italic;
+    color: #FFE4B5;
+    border-radius: 6px;
+    position: relative;
+  }
+
+  .article-content blockquote::before {
+    content: '"';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    font-size: 48px;
+    color: #FFD700;
+    opacity: 0.2;
+  }
+
+  .article-content a {
+    color: #FFD700;
+    text-decoration: none;
+    position: relative;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .article-content a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #FFD700, #EF4444);
+    transition: width 0.3s ease;
+  }
+
+  .article-content a:hover::after {
+    width: 100%;
+  }
+
+  .article-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 35px 0;
+    border: 2px solid #333;
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .article-content img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 20px 50px rgba(255, 215, 0, 0.2);
+  }
+
+  /* Sidebar */
+  .article-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+  }
+
+  .sidebar-widget {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+    padding: 28px;
+    margin-bottom: 24px;
+    border-radius: 10px;
+    border: 1px solid #333;
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.05);
+  }
+
+  .sidebar-widget h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #FFD700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #333;
+  }
+
   .article-tags {
     display: flex;
+    flex-direction: column;
     gap: 10px;
-    flex-wrap: wrap;
   }
-  
+
   .article-tag {
     display: inline-block;
-    padding: 6px 14px;
-    background: rgba(255, 215, 0, 0.1);
+    padding: 8px 14px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
     color: #FFD700;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-radius: 4px;
+    border-radius: 6px;
     border: 1px solid rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
+    text-align: center;
   }
-  
-  .article-image {
-    width: 100%;
-    height: 500px;
-    object-fit: cover;
+
+  .article-tag:hover {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(239, 68, 68, 0.1) 100%);
+    border-color: #FFD700;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.15);
+  }
+
+  .reading-time {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    background: rgba(255, 215, 0, 0.1);
     border-radius: 8px;
-    margin-bottom: 50px;
+    color: #FFD700;
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+  }
+
+  .reading-time i {
+    font-size: 18px;
+  }
+
+  /* Article Footer */
+  .article-footer {
+    padding: 40px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+    border-radius: 10px;
     border: 1px solid #333;
+    border-top: 2px solid #FFD700;
+    margin-bottom: 80px;
   }
-  
-  .article-content {
-    font-size: 16px;
-    line-height: 1.8;
-    color: #ffffff;
+
+  .article-footer-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
   }
-  
-  .article-content h2 {
+
+  .article-footer-author {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFD700, #EF4444);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  .author-info h4 {
+    font-size: 14px;
+    color: #FFD700;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .author-info p {
+    font-size: 12px;
+    color: #888888;
+    margin: 4px 0 0 0;
+  }
+
+  .article-footer-date {
+    font-size: 13px;
+    color: #888888;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .article-footer-date i {
+    color: #FFD700;
+  }
+
+  /* Related Articles Section */
+  .article-related {
+    margin-top: 100px;
+    padding-top: 50px;
+    border-top: 2px solid #333;
+  }
+
+  .article-related h2 {
     font-size: 32px;
     font-weight: 800;
     color: #FFD700;
-    margin: 40px 0 20px 0;
-    line-height: 1.3;
+    margin-bottom: 40px;
+    text-align: center;
   }
-  
-  .article-content h3 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #FDE047;
-    margin: 30px 0 15px 0;
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
   }
-  
-  .article-content p {
-    margin-bottom: 20px;
+
+  .related-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+    border: 1px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
   }
-  
-  .article-content ul,
-  .article-content ol {
-    margin: 20px 0 20px 20px;
+
+  .related-card:hover {
+    border-color: #FFD700;
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(255, 215, 0, 0.15);
   }
-  
-  .article-content li {
+
+  .related-card-image {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .related-card-content {
+    padding: 20px;
+  }
+
+  .related-card h3 {
+    font-size: 16px;
+    color: #FFD700;
     margin-bottom: 10px;
-  }
-  
-  .article-content code {
-    background: #1a1a1a;
-    color: #FFD700;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Monaco', 'Menlo', monospace;
-    font-size: 14px;
-  }
-  
-  .article-content pre {
-    background: #0a0a0a;
-    color: #FDE047;
-    padding: 20px;
-    border-radius: 8px;
-    overflow-x: auto;
-    margin: 20px 0;
-    border: 1px solid #333;
     line-height: 1.4;
+    font-weight: 700;
   }
-  
-  .article-content pre code {
-    background: none;
-    color: inherit;
-    padding: 0;
+
+  .related-card p {
+    font-size: 13px;
+    color: #888888;
+    margin-bottom: 15px;
   }
-  
-  .article-content blockquote {
-    border-left: 4px solid #FFD700;
-    padding: 20px;
-    margin: 20px 0;
-    background: rgba(255, 215, 0, 0.05);
-    font-style: italic;
-    color: #FCA5A5;
+
+  .related-card-meta {
+    font-size: 12px;
+    color: #666666;
   }
-  
-  .article-content a {
-    color: #FFD700;
-    text-decoration: underline;
-    text-decoration-color: #EF4444;
-  }
-  
-  .article-content a:hover {
-    color: #FDE047;
-  }
-  
-  .article-content img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin: 30px 0;
-    border: 1px solid #333;
-  }
-  
-  .article-footer {
-    margin-top: 80px;
-    padding-top: 30px;
-    border-top: 2px solid #333;
-  }
-  
-  @media (max-width: 768px) {
-    .article-header h1 {
-      font-size: 32px;
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .article-body {
+      grid-template-columns: 1fr;
     }
-    
-    .article-image {
+
+    .article-sidebar {
+      position: static;
+      top: auto;
+    }
+
+    .article-hero {
+      height: 400px;
+    }
+
+    .article-hero-content h1 {
+      font-size: 36px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .article-hero {
       height: 300px;
+      margin-bottom: 40px;
+    }
+
+    .article-hero-overlay {
+      padding: 40px 24px 24px;
+    }
+
+    .article-hero-content h1 {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    .article-content {
+      font-size: 15px;
+    }
+
+    .article-content h2 {
+      font-size: 24px;
+      margin: 35px 0 18px 0;
+    }
+
+    .article-content h3 {
+      font-size: 20px;
+    }
+
+    .article-footer-meta {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .sidebar-widget {
+      padding: 20px;
     }
   }
 </style>
 
-<article class="article-container">
-  <header class="article-header">
-    <h1>{{ title }}</h1>
-    
-    <div class="article-meta">
+<div class="article-wrapper">
+  <!-- Article Hero -->
+  {% if image %}
+  <div class="article-hero">
+    <img src="{{ image }}" alt="{{ title }}">
+    <div class="article-hero-overlay">
+      <div class="article-hero-content">
+        <h1>{{ title }}</h1>
+        <div class="article-hero-meta">
+          <span>
+            <i class="far fa-calendar"></i>
+            {{ date | readableDate }}
+          </span>
+          <span>
+            <i class="far fa-clock"></i>
+            {{ content | readingTime }} min read
+          </span>
+          <span>
+            <i class="far fa-user"></i>
+            {{ site.author }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div style="height: 80px; margin-bottom: 40px;">
+    <h1 style="font-size: 48px; font-weight: 900; color: #FFD700; margin-bottom: 20px; line-height: 1.2;">{{ title }}</h1>
+    <div class="article-hero-meta" style="margin-top: 20px;">
       <span>
         <i class="far fa-calendar"></i>
         {{ date | readableDate }}
       </span>
-      <span class="article-meta-divider">•</span>
       <span>
         <i class="far fa-clock"></i>
         {{ content | readingTime }} min read
       </span>
-      {% if author %}
-      <span class="article-meta-divider">•</span>
       <span>
         <i class="far fa-user"></i>
-        {{ author }}
+        {{ site.author }}
       </span>
-      {% endif %}
     </div>
-    
-    {% if tags and tags.length > 0 %}
-    <div class="article-tags">
-      {% for tag in tags %}
-      <span class="article-tag">{{ tag }}</span>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </header>
-  
-  {% if image %}
-  <img src="{{ image }}" alt="{{ title }}" class="article-image">
-  {% endif %}
-  
-  <div class="article-content">
-    {{ content | safe }}
   </div>
-  
-  <footer class="article-footer">
-    <p>Published on {{ date | readableDate }} by {{ site.author }}</p>
-  </footer>
-</article>
+  {% endif %}
+
+  <!-- Article Body -->
+  <div class="article-body">
+    <!-- Main Content -->
+    <article class="article-content">
+      {{ content | safe }}
+    </article>
+
+    <!-- Sidebar -->
+    <aside class="article-sidebar">
+      <!-- Reading Time -->
+      <div class="reading-time">
+        <i class="far fa-hourglass"></i>
+        <span>{{ content | readingTime }} min read</span>
+      </div>
+
+      <!-- Tags Widget -->
+      {% if tags and tags.length > 0 %}
+      <div class="sidebar-widget">
+        <h3><i class="fas fa-tags" style="margin-right: 8px;"></i>Tags</h3>
+        <div class="article-tags">
+          {% for tag in tags %}
+          <span class="article-tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Share Widget -->
+      <div class="sidebar-widget">
+        <h3><i class="fas fa-share-alt" style="margin-right: 8px;"></i>Share</h3>
+        <div style="display: flex; gap: 10px;">
+          <a href="https://twitter.com/intent/tweet?url={{ site.url }}{{ page.url }}&text={{ title }}" target="_blank" style="flex: 1; text-align: center; padding: 10px; background: rgba(255, 215, 0, 0.1); border-radius: 6px; color: #FFD700; border: 1px solid rgba(255, 215, 0, 0.3); text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.3s;">
+            Twitter
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ site.url }}{{ page.url }}" target="_blank" style="flex: 1; text-align: center; padding: 10px; background: rgba(255, 215, 0, 0.1); border-radius: 6px; color: #FFD700; border: 1px solid rgba(255, 215, 0, 0.3); text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.3s;">
+            Facebook
+          </a>
+        </div>
+      </div>
+
+      <!-- Author Info Widget -->
+      <div class="sidebar-widget">
+        <h3><i class="fas fa-user-circle" style="margin-right: 8px;"></i>Author</h3>
+        <div style="text-align: center;">
+          <div class="author-avatar" style="margin: 0 auto 15px;">{{ site.author | slice: 0 }}</div>
+          <h4 style="color: #FFD700; margin: 0 0 5px 0; font-size: 14px;">{{ site.author }}</h4>
+          <p style="color: #888888; font-size: 12px; margin: 0;">{{ site.description }}</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Article Footer -->
+  <div class="article-footer">
+    <div class="article-footer-meta">
+      <div class="article-footer-author">
+        <div class="author-avatar" style="width: 60px; height: 60px; font-size: 28px;">{{ site.author | slice: 0 }}</div>
+        <div class="author-info">
+          <h4>Written by {{ site.author }}</h4>
+          <p>{{ site.description }}</p>
+        </div>
+      </div>
+      <div class="article-footer-date">
+        <i class="far fa-calendar"></i>
+        Published on {{ date | readableDate }}
+      </div>
+    </div>
+  </div>
+</div>
